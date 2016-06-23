@@ -19,32 +19,32 @@ import matplotlib.font_manager
 import matplotlib.tri as tri
 
 def setUpTheLogger():
-    # Create the logger object
+    # Create the logger object.
     logger = logging.getLogger('vrtraces')
     logger.setLevel(logging.INFO)
 
-    # Create a console handler
+    # Create a console handler.
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     
-    # Create a formatter and add it to the handler
+    # Create a formatter and add it to the handler.
     logformatter = logging.Formatter('%(asctime)s - %(name)-10s - %(levelname)s - %(message)s')
     ch.setFormatter(logformatter)
     
-    # Add the handler to the logger
+    # Add the handler to the logger.
     logger.addHandler(ch)
 
-    # Log some headers
+    # Log some headers.
     logger.info('---------------------------------')
-    logger.info('----- Creating Vr Traces --------')
+    logger.info('------ Creating Vr Traces -------')
     logger.info('---------------------------------')
     
     return logger
 
 
 def load_file(filename):
-    # Load in the file contents as a numpy array
-    # Skip headers
+    # Load in the file contents as a numpy array.
+    # Skip headers.
     data = np.loadtxt(filename, dtype = 'string', delimiter = ',', skiprows = 1)
     logger.info('Loaded %s', filename)
 
