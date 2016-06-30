@@ -527,6 +527,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     # Marker set for the Vr plots
     markers = ['+', 'o', '^', 's', 'x', 'd', '>', 'p', '1', '8', '<', 'D', 'v', '*', 'H', 'h', '4']
 
+    # Construct the base filename for each saved plot.
+    base_fname = os.path.splitext(os.path.basename(dPlotVars['filename']))[0]
+
 
     def plot_core_diam():
         # Rely on variable scope
@@ -573,6 +576,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
+        fname = '{}_{}.png'.format(base_fname, 'corediam')
+        plt.savefig(fname)
+
         return None
 
 
@@ -592,6 +598,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.ylabel(shear_labels['ylabel'])
         plt.xticks(t, timestr, rotation = '60')
         plt.tight_layout()
+
+        fname = '{}_{}.png'.format(base_fname, 'shear')
+        plt.savefig(fname)
 
         return None
 
@@ -624,6 +633,11 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
+        fname = '{}_{}.png'.format(base_fname, 'VrPoints')
+        plt.savefig(fname)
+
+        return None
+
 
     def plot_VrPoints_NumOnly():
         # Vr data points alone as color-coded numbers without markers
@@ -650,6 +664,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
                     plt.text(t2D[looper][count], y2[looper][count], '%.0f' % z2[looper][count], color = points_cols[points_binIndices[looper][count]], fontsize = base_fontsize + 6)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
+
+        fname = '{}_{}.png'.format(base_fname, 'VrPoints_ColorNum')
+        plt.savefig(fname)
 
         return None
 
@@ -690,6 +707,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
+        fname = '{}_{}.png'.format(base_fname, 'VrContours_Raw')
+        plt.savefig(fname)
+
         return None
 
 
@@ -702,8 +722,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         if ContourAlgFailure:
             ConInt = ContourIntervals_AlgFail
+            suffix = 'AlgFail'
             lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
         else:
+            suffix = ''
             ConInt = ContourIntervals
         
         CS = plt.contour(gridx, gridy, gridz, ConInt, linewidths = 3, colors = ContourCols, corner_mask = True)
@@ -744,6 +766,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
+        fname = '{}_{}{}.png'.format(base_fname, 'VrContours_InterpGrid', suffix)
+        plt.savefig(fname)
+
         return None
 
 
@@ -757,9 +782,11 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if refine:
             triangles = tri_refi
             zvals = z_refi
+            suffix = 'TriRefi'
         else:
             triangles = triang
             zvals = z2.flatten()
+            suffix = ''
 
         CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
         plt.clabel(CS, inline = 1, fontsize = 15, fmt = '%.0f')
@@ -785,6 +812,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
+        fname = '{}_{}{}.png'.format(base_fname, 'VrContours_InterpTriang', suffix)
+        plt.savefig(fname)
+
         return None
 
 
@@ -797,8 +827,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         if ContourAlgFailure:
             ConInt = ContourIntervals_AlgFail
+            suffix = 'AlgFail'
             lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
         else:
+            suffix = ''
             ConInt = ContourIntervals
         
         CSF = plt.contourf(gridx, gridy, gridz, ConInt, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
@@ -831,6 +863,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
+
+        fname = '{}_{}{}.png'.format(base_fname, 'VrFilled_InterpGrid', suffix)
+        plt.savefig(fname)
 
         return None
 
@@ -877,6 +912,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
+
+        fname = '{}_{}{}.png'.format(base_fname, 'VrFilled_InterpTriang', suffix)
+        plt.savefig(fname)
         
         return None
 
@@ -908,6 +946,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         # FutureDev: figure out how to get a legend to show the meaning of marker size and color.
+
+        fname = '{}_{}.png'.format(base_fname, 'Vr_RayWolf')
+        plt.savefig(fname)
 
         return None
 
@@ -971,7 +1012,6 @@ dPlotVars = set_vars('config.txt')
 rawdata = load_file(dPlotVars['filename'], logObj)
 dPlotData = process_data(rawdata, dPlotVars, logObj)
 status = make_plots(dPlotVars, dPlotData, logObj)
-plt.show()
 
 # Perform an orderly shutdown of the logger (flush and close all handlers).
 logging.shutdown()
