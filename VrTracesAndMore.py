@@ -574,6 +574,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
     figsize = (10, 7.5)
 
+    # Offset value for plotting Vr values
+    y_offset = 0.025
+
     def plot_core_diam():
         # Rely on variable scope
         
@@ -674,7 +677,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             for count in range(len(x[looper])):
                 if z2[looper][count] != 0:
                     # Format the number to get rid of trailing zeros
-                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+                    plt.text(t2D[looper][count], y2[looper][count] + y_offset, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
@@ -750,7 +753,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             for count in range(len(x[looper])):
                 if z2[looper][count] != 0:
                     # Format the number to get rid of trailing zeros.
-                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+                    plt.text(t2D[looper][count], y2[looper][count] + y_offset, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
@@ -800,7 +803,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             for count in range(len(x[looper])):
                 if z2[looper][count] != 0:
                     # Format the number to get rid of trailing zeros
-                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+                    plt.text(t2D[looper][count], y2[looper][count] + y_offset, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
         plt.ylim(0,vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
         plt.title(vr_labels['title'])
@@ -857,7 +860,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             for count in range(len(x[looper])):
                 if z2[looper][count] != 0:
                     # Format the number to get rid of trailing zeros.
-                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+                    plt.text(t2D[looper][count], y2[looper][count] + y_offset, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
@@ -901,7 +904,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ##    for count in range(len(x[looper])):
         ##        if z2[looper][count] != 0:
         ##            # format the number to get rid of trailing zeros
-        ##            plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count])
+        ##            plt.text(t2D[looper][count], y2[looper][count] + y_offset, '%.0f' % z2[looper][count])
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t) + 3)
         plt.title(vr_labels['title'])
