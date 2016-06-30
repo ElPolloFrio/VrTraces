@@ -530,6 +530,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     # Construct the base filename for each saved plot.
     base_fname = os.path.splitext(os.path.basename(dPlotVars['filename']))[0]
 
+    figsize = (10, 7.5)
 
     def plot_core_diam():
         # Rely on variable scope
@@ -577,6 +578,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}.png'.format(base_fname, 'corediam')
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -600,6 +602,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}.png'.format(base_fname, 'shear')
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -634,6 +637,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}.png'.format(base_fname, 'VrPoints')
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -666,6 +670,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}.png'.format(base_fname, 'VrPoints_ColorNum')
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -708,6 +713,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}.png'.format(base_fname, 'VrContours_Raw')
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -722,7 +728,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         if ContourAlgFailure:
             ConInt = ContourIntervals_AlgFail
-            suffix = 'AlgFail'
+            suffix = '_AlgFail'
             lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
         else:
             suffix = ''
@@ -767,6 +773,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}{}.png'.format(base_fname, 'VrContours_InterpGrid', suffix)
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -782,7 +789,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if refine:
             triangles = tri_refi
             zvals = z_refi
-            suffix = 'TriRefi'
+            suffix = '_TriRefi'
         else:
             triangles = triang
             zvals = z2.flatten()
@@ -813,6 +820,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}{}.png'.format(base_fname, 'VrContours_InterpTriang', suffix)
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -827,7 +835,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         if ContourAlgFailure:
             ConInt = ContourIntervals_AlgFail
-            suffix = 'AlgFail'
+            suffix = '_AlgFail'
             lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
         else:
             suffix = ''
@@ -865,6 +873,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}{}.png'.format(base_fname, 'VrFilled_InterpGrid', suffix)
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -880,7 +889,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if refine:
             triangles = tri_refi
             zvals = z_refi
-            suffix = 'TriRefi'
+            suffix = '_TriRefi'
         else:
             triangles = triang
             zvals = z2.flatten()
@@ -914,6 +923,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.tight_layout()
 
         fname = '{}_{}{}.png'.format(base_fname, 'VrFilled_InterpTriang', suffix)
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
         
         return None
@@ -947,7 +957,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         # FutureDev: figure out how to get a legend to show the meaning of marker size and color.
 
-        fname = '{}_{}.png'.format(base_fname, 'Vr_RayWolf')
+        fname = '{}_{}_RayWolf.png'.format(base_fname, 'VrPoints')
+        fig.set_size_inches(figsize)
         plt.savefig(fname)
 
         return None
@@ -956,52 +967,52 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     # Testing
     
     # Core diameter
-    #lumberjack.info('Plotting core diameter')
-    #plot_core_diam()
+    lumberjack.info('Plotting core diameter')
+    plot_core_diam()
 
     # Shear
-    #lumberjack.info('Plotting shear')
-    #plot_shear()
+    lumberjack.info('Plotting shear')
+    plot_shear()
 
     # Vr data points
-    #lumberjack.info('Plotting Vr data points alone')
-    #plot_VrPoints()
+    lumberjack.info('Plotting Vr data points alone')
+    plot_VrPoints()
 
     # Vr values color-coded by binned values
-    #lumberjack.info('Plotting Vr data points as numbers without markers')
-    #plot_VrPoints_NumOnly()
+    lumberjack.info('Plotting Vr data points as numbers without markers')
+    plot_VrPoints_NumOnly()
 
     ## Vr contours based on raw input values. NEVER USE THIS PLOT.
     ##lumberjack.info('Plotting Vr data points with contours based on raw input values')
     ##plot_VrContours_Raw()
     
     # Vr contours based on gridded interpolation.
-    #lumberjack.info('Plotting Vr data points with contours based on gridded interpolation between raw input values')
-    #plot_VrContours_GridInterp()
+    lumberjack.info('Plotting Vr data points with contours based on gridded interpolation between raw input values')
+    plot_VrContours_GridInterp()
 
     # Vr contours based on triangular interpolation.
-    #lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values')
-    #plot_VrContours_TriangInterp(refine = False)
+    lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values')
+    plot_VrContours_TriangInterp(refine = False)
 
     # Vr contours based on triangular interpolation with a refiner.
-    #lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values, using a refiner')
-    #plot_VrContours_TriangInterp(refine = True)
+    lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values, using a refiner')
+    plot_VrContours_TriangInterp(refine = True)
 
     # Vr filled contours based on gridded interpolation.
-    #lumberjack.info('Plotting Vr filled contours with gridded interpolation')
-    #plot_VrContours_Filled_GridInterp()
+    lumberjack.info('Plotting Vr filled contours with gridded interpolation')
+    plot_VrContours_Filled_GridInterp()
 
     # Vr filled contours based on triangular interpolation.
-    #lumberjack.info('Plotting Vr filled contours with triangular interpolation')
-    #plot_VrContours_Filled_TriangInterp(refine = False)
+    lumberjack.info('Plotting Vr filled contours with triangular interpolation')
+    plot_VrContours_Filled_TriangInterp(refine = False)
 
     # Vr filled contours based on triangular interpolation with a refiner.
-    #lumberjack.info('Plotting Vr filled contours with triangular interpolation, using a refiner')
-    #plot_VrContours_Filled_TriangInterp(refine = True)
+    lumberjack.info('Plotting Vr filled contours with triangular interpolation, using a refiner')
+    plot_VrContours_Filled_TriangInterp(refine = True)
 
     # Vr plot style requested by Ray Wolf
-    #lumberjack.info('Plotting Ray Wolf\'s scatter plot')
-    #plot_Vr_RayWolf()
+    lumberjack.info('Plotting Ray Wolf\'s scatter plot')
+    plot_Vr_RayWolf()
 
     return None
 
