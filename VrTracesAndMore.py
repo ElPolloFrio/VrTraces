@@ -197,7 +197,14 @@ def setVars(configfile):
         valid_colors.append(k)
     for x in ['VrPointsCols', 'VrContoursCols', 'ContourCols']:
         for c in dictPlotParms[x]:
-            assert c in valid_colors, 'Oops. The config file has an invalid entry for %s. "%s" is not a valid color designation.' % (x, c)
+            if '#' in c:
+                # Confirm that it's a valid hex color code
+                assert c[0] is '#', 'Oops. A hex color code must start with "#".'
+                assert len(c) is 7, 'Oops. A hex color code is usually 7 characters long including the "#". This one has %s characters.' % (len(c))
+                # FutureDev: check that only alphanumeric chars are present.
+            else:
+                # Check the color name
+                assert c in valid_colors, 'Oops. The config file has an invalid entry for %s. "%s" is not a valid color designation.' % (x, c)
 
     # Enforce "tri_subdivisions" LTE 4
     assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
