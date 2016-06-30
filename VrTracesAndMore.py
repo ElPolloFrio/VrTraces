@@ -435,11 +435,541 @@ def process_data(data, dictPlotParms, lumberjack):
     return dictPlotThis
 
 
+def make_plots(dictUserParms, dictPlotThis, lumberjack):
+    # This function creates and saves a set of plots based on data from
+    # a spreadsheet.
+    #
+    # Input:
+    # dictUserParms: dictionary of plotting parameters as returned by set_vars
+    # dictPlotThis: dictionary of Python objects suitable for plotting
+    # lumberjack: the logger
+    #
+    # Output:
+    # plots saved to disk
+
+    # Generate plot labels
+    mv_name = dictUserParms['mv_name']
+    tz_units = dictUserParms['tz_units']
+    corediam_units = dictUserParms['corediam_units']
+    height_units = dictUserParms['height_units']
+    
+    dictPlotLabels = {
+        'corediam': {
+            'title': 'Core diameter for %s' % (mv_name),
+            'xlabel': 'Time (%s)' % (tz_units),
+            'ylabel': 'Core diameter (%s)' % (corediam_units)
+        },
+        'shear': {
+            'title': 'Shear for %s' % (mv_name),
+            'xlabel': 'Time (%s)' % (tz_units),
+            'ylabel': 'Shear ' + r'$\left(V_r / d * 10^{-3} s^{-1}\right)$'
+        },
+        'Vr': {
+            'title': r'$V_r$ trace for %s' % (mv_name),
+            'xlabel': 'Time (%s)' % (tz_units),
+            'ylabel': 'Height (%s)' % (height_units)
+        }
+    }
+
+    lumberjack.info('Generated plot labels')
+
+    # Shorter variable names are easier to read
+    t = dictPlotThis['t']
+    timestr = dictPlotThis['timestr']
+    elev = dictPlotThis['elev']
+    corediam = dictPlotThis['corediam']
+    corediam_labels = dictPlotLabels['corediam']
+    fontsize = dictUserParms['rcParamsFontSize']
+    base_fontsize = 12
+    
+    shear = dictPlotThis['shear']
+    shear_labels = dictPlotLabels['shear']
+    
+    t2D = dictPlotThis['t2D']
+    x = dictPlotThis['x']
+    y = dictPlotThis['y']
+    z = dictPlotThis['z']
+    y2 = dictPlotThis['y2']
+    z2 = dictPlotThis['z2']
+    vr_ylim = dictUserParms['vr_ylim']
+    vr_labels = dictPlotLabels['Vr']
+
+    points_bins = dictUserParms['VrPointsBins']
+    points_cols = dictUserParms['VrPointsCols']
+    # Need a later version of numpy for this.
+    #binIndices = np.digitize(z2.flatten(), bins, right = True)
+    points_binIndices = np.digitize(z2.flatten(), points_bins)
+    points_binIndices = np.reshape(points_binIndices, z2.shape)
+
+    VrContoursBins = dictUserParms['VrContoursBins']
+    VrContoursCols = dictUserParms['VrContoursCols']
+
+    gridx = dictPlotThis['gridx']
+    gridy = dictPlotThis['gridy']
+    gridz = dictPlotThis['gridz']
+
+    ContourIntervals = dictUserParms['ContourIntervals']
+    ContourTickLabels = dictUserParms['ContourTickLabels']
+    ContourCols = dictUserParms['ContourCols']
+
+    # Handle the algorithm failure parameter, if specified
+    ContourAlgFailure = False
+    adj_factor = dictUserParms['Vr_algfail_adj']
+    if adj_factor != 0:
+        ContourAlgFailure = True
+        temp = np.array(ContourIntervals) + adj_factor
+        ContourIntervals_AlgFail = tuple(temp.tolist())
+
+    triang = dictPlotThis['triang']
+    tri_refi = dictPlotThis['tri_refi']
+    z_refi = dictPlotThis['z_refi']
+    
+    # Marker set for the Vr plots
+    markers = ['+', 'o', '^', 's', 'x', 'd', '>', 'p', '1', '8', '<', 'D', 'v', '*', 'H', 'h', '4']
+
+
+    def plot_core_diam():
+        # Rely on variable scope
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        
+        # Specify the line colors from a colormap.
+        #
+        # Number of curves to plot.
+        ncurves = len(elev)
+        # 0-indexed list of line numbers used to take samples from the colormap.
+        values = range(ncurves) 
+        colmap = plt.get_cmap(dictUserParms['corediam_colmap'])
+        cNorm = colors.Normalize(vmin = 0, vmax = values[-1])
+        scalarMap = cmx.ScalarMappable(norm = cNorm, cmap = colmap)
+        #print scalarMap.get_clim()
+
+        for a in np.arange(0, len(elev)):
+            colorVal = scalarMap.to_rgba(values[a])
+            if elev[a] <= 1.4:
+                ax.plot(t, corediam[a], '-', lw=2, color = colorVal, label = '%.1f deg' % elev[a])
+            elif elev[a] <= 5.0:
+                ax.plot(t, corediam[a], '--', lw=2, color = colorVal, label = '%.1f deg' % elev[a])
+            else:
+                ax.plot(t, corediam[a], ':', lw=2, color = colorVal, label = '%.1f deg' % elev[a])
+
+        ## Alternate method to automatically pick line colors, but it is not always very readable
+        ## and duplicates sometimes occur. 
+        #for a in np.arange(0, len(elev)):
+        #    if elev[a] <= 1.4:
+        #        ax.plot(t, corediam[a], '-', lw=2, label = '%.1f deg' % elev[a])
+        #    else:
+        #        ax.plot(t, corediam[a], '--', lw=2, label = '%.1f deg' % elev[a])
+
+        ax.yaxis.grid(True)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        ax.legend(loc = 2, scatterpoints = 1, prop = LFP)    
+        plt.title(corediam_labels['title'])
+        plt.xlabel(corediam_labels['xlabel'])
+        plt.ylabel(corediam_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_shear():
+        # Rely on variable scope
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        for a in np.arange(0, len(elev)):
+            ax.plot(t, shear[a], '-', lw = 2, label = '%.1f deg' % elev[a])
+        ax.yaxis.grid(True)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        plt.title(shear_labels['title'])
+        plt.xlabel(shear_labels['xlabel'])
+        plt.ylabel(shear_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_VrPoints():
+        # Vr data points alone
+        # Rely on variable scope
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        
+        for a in np.arange(0, len(x)):
+            plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        ax.set_ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+
+        # Plot the numbers
+        for looper in np.arange(0,len(x)):
+            for count in range(len(x[looper])):
+                if z2[looper][count] != 0:
+                    # Format the number to get rid of trailing zeros
+                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+
+    def plot_VrPoints_NumOnly():
+        # Vr data points alone as color-coded numbers without markers
+        # Rely on variable scope
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        ax.set_ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+
+        # Plot the numbers
+        for looper in np.arange(0,len(x)):
+            for count in range(len(x[looper])):
+                if z2[looper][count] != 0:
+                    # format the number to get rid of trailing zeros
+                    plt.text(t2D[looper][count], y2[looper][count], '%.0f' % z2[looper][count], color = points_cols[points_binIndices[looper][count]], fontsize = base_fontsize + 6)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_VrContours_Raw():
+        # Vr data points with contours based on raw input values
+        # Rely on variable scope
+        
+        # NEVER USE THIS PLOT. The data set is nearly always too sparse for the
+        # contouring algorithm to handle properly.
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        
+        # The line below fails if the lowest contour specified isn't found in the data set.
+        # FutureDev: check for this case and adjust the bin values and colors as needed
+        CS = ax.contour(t2D, y2, z2, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
+        plt.clabel(CS, inline = 1, fontsize = base_fontsize + 3, fmt = '%.0f')
+
+        for a in np.arange(0, len(x)):
+            plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        ax.set_ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        # Code to plot the numbers as a troubleshooting aid. Turns out that Ron likes
+        # this, so include it in the final image. 
+        for looper in np.arange(0,len(x)):
+            for count in range(len(x[looper])):
+                if z2[looper][count] != 0:
+                    # Format the number to get rid of trailing zeros.
+                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_VrContours_GridInterp():
+        # Vr points with contours based on gridded interpolation.
+        # Rely on variable scope
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        if ContourAlgFailure:
+            ConInt = ContourIntervals_AlgFail
+            lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
+        else:
+            ConInt = ContourIntervals
+        
+        CS = plt.contour(gridx, gridy, gridz, ConInt, linewidths = 3, colors = ContourCols, corner_mask = True)
+
+        if ContourAlgFailure:
+            # Plot at val+adj but label it as val because of problems with the
+            # contouring algorithm. 
+            fmt = {}
+            lbls = ContourTickLabels
+            for l, s in zip(CS.levels, lbls):
+                fmt[l] = s
+            plt.clabel(CS, CS.levels, inline = True, fmt = fmt, fontsize = base_fontsize)
+            ## Plot the grid used for interpolation as a troubleshooting guide.
+            #plt.scatter(gridx, gridy)
+        else:
+            plt.clabel(CS, inline = 1, fontsize = base_fontsize + 3, fmt = '%.0f')
+
+        # Scatterplot of the data points only, not the interpolation points.
+        for a in np.arange(0, len(x)):
+            plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
+        # Code to plot the numbers as a troubleshooting aid. Turns out Ron likes
+        # this, so include it in the final image.
+        for looper in np.arange(0,len(x)):
+            for count in range(len(x[looper])):
+                if z2[looper][count] != 0:
+                    # Format the number to get rid of trailing zeros
+                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+        plt.ylim(0,vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        ax.set_ylim(0, vr_ylim)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_VrContours_TriangInterp(refine = False):
+        # Vr points with contours based on triangular interpolation
+        # Rely on variable scope
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        if refine:
+            triangles = tri_refi
+            zvals = z_refi
+        else:
+            triangles = triang
+            zvals = z2.flatten()
+
+        CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
+        plt.clabel(CS, inline = 1, fontsize = 15, fmt = '%.0f')
+
+        for a in np.arange(0, len(x)):
+            plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        ax.set_ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        # Code to plot the numbers as a troubleshooting aid. Turns out that Ron likes
+        # this, so include it in the final image. 
+        for looper in np.arange(0,len(x)):
+            for count in range(len(x[looper])):
+                if z2[looper][count] != 0:
+                    # Format the number to get rid of trailing zeros.
+                    plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count], fontsize = base_fontsize + 6)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_VrContours_Filled_GridInterp():
+        # Vr points with filled contours based on gridded interpolation
+        # Rely on variable scope
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        if ContourAlgFailure:
+            ConInt = ContourIntervals_AlgFail
+            lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
+        else:
+            ConInt = ContourIntervals
+        
+        CSF = plt.contourf(gridx, gridy, gridz, ConInt, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
+
+        if ContourAlgFailure:
+            # Plot at val+adj but label it as val because of problems with the
+            # contouring algorithm. 
+            cbar = fig.colorbar(CSF, ticks = ContourIntervals)
+            cbar.ax.set_yticklabels(ContourTickLabels)
+        else:
+            plt.colorbar(ax = ax)
+
+        # Scatterplot of the data points only, not the interpolation points.
+        for a in np.arange(0, len(x)):
+            plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
+        ### code to plot the numbers as a troubleshooting aid.
+        ##for looper in np.arange(0,len(x)):
+        ##    for count in range(len(x[looper])):
+        ##        if z2[looper][count] != 0:
+        ##            # format the number to get rid of trailing zeros
+        ##            plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count])
+        plt.ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t) + 3)
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+
+        return None
+
+
+    def plot_VrContours_Filled_TriangInterp(refine = False):
+        # Vr points with filled contours based on triangular interpolation
+        # Rely on variable scope
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        if refine:
+            triangles = tri_refi
+            zvals = z_refi
+        else:
+            triangles = triang
+            zvals = z2.flatten()
+
+        CSF = ax.tricontourf(triangles, zvals, ContourIntervals, dictUserParms['filled_contour_colmap'], corner_mask = True)
+        
+        cbar = fig.colorbar(CSF)
+
+        # Scatterplot of the data points only, not the interpolation points.
+        for a in np.arange(0, len(x)):
+            plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
+
+        ### code to plot the numbers as a troubleshooting aid.
+        ##for looper in np.arange(0,len(x)):
+        ##    for count in range(len(x[looper])):
+        ##        if z2[looper][count] != 0:
+        ##            # format the number to get rid of trailing zeros
+        ##            plt.text(t2D[looper][count], y2[looper][count] + 0.025, '%.0f' % z2[looper][count])
+            
+        plt.ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t) + 3)
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        # LFP stands for "legend font properties"
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        plt.rcParams['font.size'] = fontsize
+        plt.tight_layout()
+        
+        return None
+
+
+    def plot_Vr_RayWolf():
+        # Vr points styled according to a request from Ray Wolf (SOO at WFO ???).
+        # Scatter plot with the size of the marker indicating the Vr value.
+        # Rely on variable scope
+
+        # FutureDev: marker size indicates core diam instead, plotted over Vr?
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        
+        # Must specify the radius of the marker size for each point, but must first
+        # calculate those values based on the aspect of the data set with which it
+        # should vary.
+        # Experiment to find an expression which brings out the values and looks good.
+        for a in np.arange(0, len(x)):
+            #plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = 'k', marker = 'o', label = '%.1f deg' % elev[a])
+            plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
+            #plt.scatter(t2D[a,:], y[a,:], s = 35, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
+        plt.ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        plt.tight_layout()
+
+        # FutureDev: figure out how to get a legend to show the meaning of marker size and color.
+
+        return None
+
+
+    # Testing
+    
+    # Core diameter
+    #lumberjack.info('Plotting core diameter')
+    #plot_core_diam()
+
+    # Shear
+    #lumberjack.info('Plotting shear')
+    #plot_shear()
+
+    # Vr data points
+    #lumberjack.info('Plotting Vr data points alone')
+    #plot_VrPoints()
+
+    # Vr values color-coded by binned values
+    #lumberjack.info('Plotting Vr data points as numbers without markers')
+    #plot_VrPoints_NumOnly()
+
+    # Vr contours based on raw input values. NEVER USE THIS PLOT.
+    #lumberjack.info('Plotting Vr data points with contours based on raw input values')
+    #plot_VrContours_Raw()
+    
+    # Vr contours based on gridded interpolation.
+    #lumberjack.info('Plotting Vr data points with contours based on gridded interpolation between raw input values')
+    #plot_VrContours_GridInterp()
+
+    # Vr contours based on triangular interpolation.
+    #lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values')
+    #plot_VrContours_TriangInterp(refine = False)
+
+    # Vr contours based on triangular interpolation with a refiner.
+    #lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values, using a refiner')
+    #plot_VrContours_TriangInterp(refine = True)
+
+    # Vr filled contours based on gridded interpolation.
+    #lumberjack.info('Plotting Vr filled contours with gridded interpolation')
+    #plot_VrContours_Filled_GridInterp()
+
+    # Vr filled contours based on triangular interpolation.
+    #lumberjack.info('Plotting Vr filled contours with triangular interpolation')
+    #plot_VrContours_Filled_TriangInterp(refine = False)
+
+    # Vr filled contours based on triangular interpolation with a refiner.
+    #lumberjack.info('Plotting Vr filled contours with triangular interpolation, using a refiner')
+    #plot_VrContours_Filled_TriangInterp(refine = True)
+
+    # Vr plot style requested by Ray Wolf
+    #lumberjack.info('Plotting Ray Wolf\'s scatter plot')
+    #plot_Vr_RayWolf()
+
+    return None
+
+
 # Load a data set, process it, and plot it.
 logObj= setUpTheLogger()
 dPlotVars = set_vars('config.txt')
 rawdata = load_file(dPlotVars['filename'], logObj)
 dPlotData = process_data(rawdata, dPlotVars, logObj)
+status = make_plots(dPlotVars, dPlotData, logObj)
+plt.show()
 
 # Perform an orderly shutdown of the logger (flush and close all handlers).
 logging.shutdown()
