@@ -30,7 +30,7 @@ def setUpTheLogger():
     ch.setLevel(logging.INFO)
     
     # Create a formatter and add it to the handler.
-    logformatter = logging.Formatter('%(asctime)s - %(name)-10s - %(levelname)s - %(message)s')
+    logformatter = logging.Formatter('%(asctime)s - %(name)-8s - %(levelname)s - %(message)s')
     ch.setFormatter(logformatter)
     
     # Add the handler to the logger.
