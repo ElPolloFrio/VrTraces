@@ -395,13 +395,14 @@ def process_data(data, dictPlotParms, lumberjack):
     #
     # Since every elevation angle isn't necessarily present at every time step,
     # start with the array of nans and fill it in with known data. 
-    ts_vars = {'core diameter':
-                {'col_ind': 4,
-                'varname': 'corediam'},
-            'shear':
-                {'col_ind': 5,
-                'varname': 'shear'}
-            }
+    ts_vars = {
+        'core diameter':
+            {'col_ind': 4,
+            'varname': 'corediam'},
+        'shear':
+            {'col_ind': 5,
+            'varname': 'shear'}
+    }
 
     for k in ts_vars.keys():
         lumberjack.info('Starting %s preparation' % (k))
