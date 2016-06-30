@@ -44,11 +44,11 @@ def setUpTheLogger():
     return logger
 
 
-def load_file(filename):
+def load_file(filename, lumberjack):
     # Load in the file contents as a numpy array.
     # Skip headers.
     data = np.loadtxt(filename, dtype = 'string', delimiter = ',', skiprows = 1)
-    logger.info('Loaded %s', filename)
+    lumberjack.info('Loaded %s', filename)
 
     return data
 
@@ -117,7 +117,7 @@ def setVars(configfile):
     #   on the data set, the contours might look better after using a
     #   triangular refiner. Set this to the number of subdivisions for each
     #   triangle. Typical values are 1-3. This script will disallow anything
-    #   higher than 5.
+    #   above 4.
     # 
     # VrContoursBins: (comma-separated list of integers or decimal numbers) Bin
     #   values for the gridded and triangulated contoured Vr plots.
@@ -159,7 +159,7 @@ def setVars(configfile):
             key = parts[0].strip()
             val = parts[1].strip()
             # Convert from strings to other data types
-            if key in ['vr_ylim', 'VrPoints_algfail_adjustment']:
+            if key in ['vr_ylim', 'VrPointsBins_algfail_adj']:
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
@@ -173,4 +173,24 @@ def setVars(configfile):
             # Assign configuration items to the dictionary
             dictPlotParms[key] = val
 
+    # Apply algorithm failure adjustment
+    temp = np.array(dictPlotParms['VrPointsBins']) + dictPlotParms['VrPointsBins_algfail_adj']
+    dictPlotParms['VrPointsBins'] = temp.tolist()
+
+    # QC user input from the config file.
+
+    # "corediam_colmap" and "filled_contour_colmap" must be valid maplotlib colormap
+    # names.
+    valid_colmaps = sorted(x for x in plt.cm.datad)
+    for x in ['corediam_colmap', 'filled_contour_colmap']:
+        assert dictPlotParms[x] in valid_colmaps, 'Oops. the config file has an invalid entry for %s' % (x)
+
+    # Enforce "tri_subdivisions" LTE 4
+    assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
+
     return dictPlotParms
+
+
+logObj= setUpTheLogger()
+dVars = setVars('config.txt')
+rawdata = load_file(dVars['filename'], logObj)
