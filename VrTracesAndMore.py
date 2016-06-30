@@ -80,7 +80,7 @@ def set_vars(configfile):
     # corediam_units: (string) Core diameter units to use on the y-axis for
     #   core diameter plots. 
     #
-    # hght_units: (string) Height units to use on the y-axis for the Vr plots.
+    # height_units: (string) Height units to use on the y-axis for the Vr plots.
     #
     # corediam_colmap: (string, must be a valid matplotlib colormap name)
     #   A matplotlib colormap from which to select colors to use for the core
@@ -102,15 +102,15 @@ def set_vars(configfile):
     #   color designations) Colors associated with the bin values defined
     #   above. This is used on the Vr plot with color-voded Vr values.
     #
-    # VrPointsBins_algfail_adj: (decimal) The contoured plot with
-    #   raw numbers always has problems because the data set is too sparse.
-    #   The contours for the gridded interpolation sometimes look incorrect
-    #   because of the interpolation. Sometimes, the contours look better
-    #   by contouring at 14.9 instead of 15.0, for example. Set this value
-    #   to -0.1 (use other values at your own risk) to produce a plot
-    #   with contours at VrPointsBins + VrPointsBins_algfail_adj. It
-    #   may or may not improve the appearance of the contours with the
-    #   gridded interpolation.
+    # Vr_algfail_adj: (decimal) The contoured plot with raw numbers nearly
+    #   always has problems because the data set is too sparse. The contours
+    #   for the gridded interpolation sometimes look incorrect because
+    #   of the interpolation. Sometimes, the contours look better by contouring
+    #   at 14.9 instead of 15.0, for example. Set this value to -0.1 (use other
+    #   values at your own risk) to produce a plot with contours at 
+    #   VrContoursBins + Vr_algfail_adj. It may or may not improve the
+    #   appearance of the contours with the gridded interpolation. Set this value
+    #   to 0 to plot contours exactly at the values in VrContoursBins.
     #
     # tri_subdivisions: (integer) Another interpolation method is the
     #   triangular interpolation. This plot is produced by default. Depending
@@ -160,7 +160,7 @@ def set_vars(configfile):
             key = parts[0].strip()
             val = parts[1].strip()
             # Convert from strings to other data types
-            if key in ['vr_ylim', 'VrPointsBins_algfail_adj']:
+            if key in ['vr_ylim', 'Vr_algfail_adj']:
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
