@@ -120,7 +120,8 @@ def setVars(configfile):
     #   above 4.
     # 
     # VrContoursBins: (comma-separated list of integers or decimal numbers) Bin
-    #   values for the gridded and triangulated contoured Vr plots.
+    #   values for the gridded and triangulated contoured Vr plots. Note that the
+    #   plotting fails if the lowest specified contour is not found in the data.
     #
     # VrContoursCols: (comma-separated list of strings which must be valid matplotlib
     #   color designations) Colors associated with the bin values defined above. This
@@ -163,7 +164,7 @@ def setVars(configfile):
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
-            if key in ['VrPointsBins', 'VrPointsCols', 'VrContoursBins', 'VrContoursCols', 'ContourIntervals', 'ContourCols']:
+            if key in ['VrPointsBins', 'VrPointsCols', 'VrContoursBins', 'VrContoursCols', 'ContourIntervals', 'ContourCols', 'ContourTickLabels']:
                 # Turn a comma-separated text list into a Python list
                 val = val.split(',')
                 val = [x.strip() for x in val]
@@ -176,7 +177,7 @@ def setVars(configfile):
             # Assign configuration items to the dictionary
             dictPlotParms[key] = val
 
-    # Apply algorithm failure adjustment
+    # Apply algorithm failure adjustment value
     temp = np.array(dictPlotParms['VrPointsBins']) + dictPlotParms['VrPointsBins_algfail_adj']
     dictPlotParms['VrPointsBins'] = temp.tolist()
 
@@ -191,7 +192,15 @@ def setVars(configfile):
     # Enforce "tri_subdivisions" LTE 4
     assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
 
-    
+    # Make sure each specified bin has an associated color.
+    thing1 = ['VrPointsBins', 'VrContoursBins', 'ContourIntervals']
+    thing2 = ['VrPointsCols', 'VrContoursCols', 'ContourTickLabels']
+    for a, b in zip(thing1, thing2):
+        assert len(dictPlotParms[a]) is len(dictPlotParms[b]), 'Oops. %s has %s entries but %s has %s. They should be equal.' % (a, len(dictPlotParms[a]), b, len(dictPlotParms[b]))
+
+    # The contour intervals for filled plots are slightly different. Proper plotting requires
+    # one more interval than there are colors.
+    assert len(dictPlotParms['ContourIntervals']) is len(dictPlotParms['ContourCols']) + 1, 'Oops. VrContoursBins has %s entries but VrContoursCols has %s. They should be equal.' % (len(dictPlotParms['ContourIntervals']), len(dictPlotParms['ContourCols']))
 
     return dictPlotParms
 
