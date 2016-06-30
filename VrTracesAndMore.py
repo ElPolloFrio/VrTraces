@@ -177,10 +177,6 @@ def set_vars(configfile):
             # Assign configuration items to the dictionary
             dictPlotParms[key] = val
 
-    # Apply algorithm failure adjustment value
-    temp = np.array(dictPlotParms['VrPointsBins']) + dictPlotParms['VrPointsBins_algfail_adj']
-    dictPlotParms['VrPointsBins'] = temp.tolist()
-
     # QC user input from the config file.
 
     # 'corediam_colmap' and 'filled_contour_colmap' must be valid maplotlib colormap
