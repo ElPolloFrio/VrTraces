@@ -930,9 +930,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     #lumberjack.info('Plotting Vr data points as numbers without markers')
     #plot_VrPoints_NumOnly()
 
-    # Vr contours based on raw input values. NEVER USE THIS PLOT.
-    #lumberjack.info('Plotting Vr data points with contours based on raw input values')
-    #plot_VrContours_Raw()
+    ## Vr contours based on raw input values. NEVER USE THIS PLOT.
+    ##lumberjack.info('Plotting Vr data points with contours based on raw input values')
+    ##plot_VrContours_Raw()
     
     # Vr contours based on gridded interpolation.
     #lumberjack.info('Plotting Vr data points with contours based on gridded interpolation between raw input values')
