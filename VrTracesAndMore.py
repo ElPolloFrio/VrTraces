@@ -170,6 +170,9 @@ def setVars(configfile):
                 if key in ['VrPointsBins', 'VrContoursBins', 'ContourIntervals']:
                     # Convert bin values from strings to floats
                     val = [float(x) for x in val]
+                if key in ['ContourIntervals', 'ContourCols']:
+                    # Convert to a Python tuple
+                    val = tuple(val)
             # Assign configuration items to the dictionary
             dictPlotParms[key] = val
 
@@ -187,6 +190,8 @@ def setVars(configfile):
 
     # Enforce "tri_subdivisions" LTE 4
     assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
+
+    
 
     return dictPlotParms
 
