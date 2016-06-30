@@ -187,7 +187,17 @@ def setVars(configfile):
     # names.
     valid_colmaps = sorted(x for x in plt.cm.datad)
     for x in ['corediam_colmap', 'filled_contour_colmap']:
-        assert dictPlotParms[x] in valid_colmaps, 'Oops. the config file has an invalid entry for %s' % (x)
+        assert dictPlotParms[x] in valid_colmaps, 'Oops. The config file has an invalid entry for %s. "%s" is not a valid matplotlib colormap.' % (x, dictPlotParms[x])
+
+    # The entries in "VrPointsCols", "VrContoursCols", and "ContourCols" must each be
+    # valid matplotlib color designations.
+    valid_colors = matplotlib.colors.cnames.keys()
+    # Add single-letter names to the list of valid colors
+    for k in matplotlib.colors.ColorConverter.colors.keys():
+        valid_colors.append(k)
+    for x in ['VrPointsCols', 'VrContoursCols', 'ContourCols']:
+        for c in dictPlotParms[x]:
+            assert c in valid_colors, 'Oops. The config file has an invalid entry for %s. "%s" is not a valid color designation.' % (x, c)
 
     # Enforce "tri_subdivisions" LTE 4
     assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
