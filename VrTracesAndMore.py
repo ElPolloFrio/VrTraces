@@ -225,3 +225,6 @@ def setVars(configfile):
 logObj= setUpTheLogger()
 dVars = setVars('config.txt')
 rawdata = load_file(dVars['filename'], logObj)
+
+# Perform an orderly shutdown of the logger (flush and close all handlers).
+logging.shutdown()
