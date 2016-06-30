@@ -364,10 +364,26 @@ def process_data(data, dictPlotParms, lumberjack):
     triang = tri.Triangulation(t2D.flatten(), y2.flatten())
     lumberjack.info('Calculated Vr triangular interpolation')
     
-    # Mask triangles from an interpolation artifact. If the y-midpoint of any given
-    # triangle is less than the lowest y-value in the data set, mask it.
+    ## Mask triangles from an interpolation artifact. If the y-midpoint of any given
+    ## triangle is less than the lowest y-value in the data set, mask it.
     ymid = y2.flatten()[triang.triangles].mean(axis = 1)
     minmask = np.where(ymid < np.nanmin(y), True, False)
+
+    # Mask triangles on a timestep-by-timestep basis using max/min y-values
+    # at each timestep.
+    min_y = np.nanmin(y, axis = 0)
+    max_y = np.nanmax(y, axis = 0)
+    xstep = t2D[0]
+    epsilon = 0.01
+    min_y = min_y - epsilon
+    max_y = max_y + epsilon
+    # Get the triangle indices for these points
+    trifinder = triang.get_trifinder()
+    toolo_ind = trifinder(xstep, min_y)
+    toohi_ind = trifinder(xstep, max_y)
+    # Mark the invalid triangles
+    minmask[toolo_ind] = True
+    minmask[toohi_ind] = True
 
     # Mask triangles if they are too flat (edge artifacts)
     min_circle_ratio = .01
@@ -381,9 +397,30 @@ def process_data(data, dictPlotParms, lumberjack):
     refiner = tri.UniformTriRefiner(triang)
     tri_refi, z_refi = refiner.refine_field(z2.flatten(), subdiv = subdiv)
 
+    num_tri_refi = tri_refi.triangles.shape[0]
+    minmask2 = np.zeros(num_tri_refi, dtype = np.bool)
+
+    # Mask refined triangles on a timestep-by-timestep basis using max/min y-values
+    # at each timestep.
+    min_y = np.nanmin(y, axis = 0)
+    max_y = np.nanmax(y, axis = 0)
+    xstep = t2D[0]
+    epsilon = 0.01
+    min_y = min_y - epsilon
+    max_y = max_y + epsilon
+    # Get the triangle indices for these points
+    trifinder = tri_refi.get_trifinder()
+    toolo_ind2 = trifinder(xstep, min_y)
+    toohi_ind2 = trifinder(xstep, max_y)
+    # Mark the invalid triangles
+    minmask2[toolo_ind2] = True
+    minmask2[toohi_ind2] = True
+
     # Mask refined triangles if they are too flat (edge artifacts)
-    flatmask = tri.TriAnalyzer(tri_refi).get_flat_tri_mask(min_circle_ratio)
-    tri_refi.set_mask(flatmask)
+    flatmask2 = tri.TriAnalyzer(tri_refi).get_flat_tri_mask(min_circle_ratio)
+    
+    mask2 = np.logical_or(minmask2, flatmask2)
+    tri_refi.set_mask(mask2)
 
     dictPlotThis['triang'] = triang
     dictPlotThis['tri_refi'] = tri_refi
