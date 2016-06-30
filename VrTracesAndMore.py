@@ -367,18 +367,23 @@ def process_data(data, dictPlotParms, lumberjack):
     # Mask triangles from an interpolation artifact. If the y-midpoint of any given
     # triangle is less than the lowest y-value in the data set, mask it.
     ymid = y2.flatten()[triang.triangles].mean(axis = 1)
-    mask = np.where(ymid < np.nanmin(y), 1, 0)
-    triang.set_mask(mask)
+    minmask = np.where(ymid < np.nanmin(y), True, False)
 
     # Mask triangles if they are too flat (edge artifacts)
     min_circle_ratio = .01
     flatmask = tri.TriAnalyzer(triang).get_flat_tri_mask(min_circle_ratio)
-    triang.set_mask(flatmask)
+
+    mask = np.logical_or(minmask, flatmask)
+    triang.set_mask(mask)
 
     # Refine the triangular grids for higher-res contouring
     subdiv = dictPlotParms['tri_subdivisions']
     refiner = tri.UniformTriRefiner(triang)
     tri_refi, z_refi = refiner.refine_field(z2.flatten(), subdiv = subdiv)
+
+    # Mask refined triangles if they are too flat (edge artifacts)
+    flatmask = tri.TriAnalyzer(tri_refi).get_flat_tri_mask(min_circle_ratio)
+    tri_refi.set_mask(flatmask)
 
     dictPlotThis['triang'] = triang
     dictPlotThis['tri_refi'] = tri_refi
