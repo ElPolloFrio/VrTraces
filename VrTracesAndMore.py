@@ -37,9 +37,9 @@ def setUpTheLogger():
     logger.addHandler(ch)
 
     # Log some headers.
-    logger.info('---------------------------------')
-    logger.info('------ Creating Vr Traces -------')
-    logger.info('---------------------------------')
+    logger.info('----------------------------------')
+    logger.info('------- Creating Vr Traces -------')
+    logger.info('----------------------------------')
     
     return logger
 
