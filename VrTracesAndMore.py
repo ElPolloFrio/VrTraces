@@ -845,11 +845,13 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if refine:
             triangles = tri_refi
             zvals = z_refi
+            suffix = 'TriRefi'
         else:
             triangles = triang
             zvals = z2.flatten()
+            suffix = ''
 
-        CSF = ax.tricontourf(triangles, zvals, ContourIntervals, dictUserParms['filled_contour_colmap'], corner_mask = True)
+        CSF = ax.tricontourf(triangles, zvals, ContourIntervals, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
         
         cbar = fig.colorbar(CSF)
 
