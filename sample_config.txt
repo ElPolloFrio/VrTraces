@@ -1,5 +1,5 @@
-filename = sampleVR.csv
-mv_name = Sample Mesovortex
+filename = sample01.csv
+mv_name = MV 1 (sample)
 vr_ylim = 4.5
 tz_units = UTC
 corediam_units = km
