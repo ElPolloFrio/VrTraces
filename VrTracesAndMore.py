@@ -17,6 +17,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cmx
 import matplotlib.font_manager
 import matplotlib.tri as tri
+import scipy.interpolate
 
 def setUpTheLogger():
     # Someone set up us the logger? Ha ha ha.
@@ -323,7 +324,6 @@ def process_data(data, dictPlotParms, lumberjack):
 
     # Interpolate Vr values in time (x) and height (y) to improve the
     # appearance of contours.
-    from scipy.interpolate import griddata
 
     # Define the interpolation grid.
     # gridx: 0 to numTimeTicks by half-tick increments, plus a margin
@@ -344,9 +344,16 @@ def process_data(data, dictPlotParms, lumberjack):
     points = np.vstack([t2D.transpose().flatten(), y2.transpose().flatten()]).transpose()
     values = z2.transpose().flatten()
     # For some unknown reason, 'cubic' interpolation hangs after upgrading to Python 2.7,
-    # scipy 0.12, and numpy 1.7. That's too bad.
-    # FutureDev: upgrade and try again?
-    gridz = griddata(points, values, (gridx, gridy), method = 'linear')
+    # scipy 0.12, and numpy 1.7. Problem fixed after upgrading to scipy 0.16.1 and
+    # numpy 1.10.2.
+    np_ver = np.__version__.split('.')
+    sp_ver = scipy.__version__.split('.')
+    if ((np_ver[0] is '1' and np_ver[1] is '7') and (sp_ver[0] is '0' and sp_ver[1] is '12')):
+        method = 'linear'
+        lumberjack.warning('Using linear interpolation due to versions of numpy and scipy')
+    else:
+        method = 'cubic'
+    gridz = scipy.interpolate.griddata(points, values, (gridx, gridy), method = method)
     lumberjack.info('Calculated Vr grid-z')
 
     # Mask Vr gridz values where they are less than the input data. This is to
