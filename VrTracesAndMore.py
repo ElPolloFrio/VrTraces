@@ -1142,7 +1142,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
 
 # Load a data set, process it, and plot it.
-logObj= setUpTheLogger()
+logObj = setUpTheLogger()
 dPlotVars = set_vars('config.txt')
 rawdata = load_file(dPlotVars['filename'], logObj)
 dPlotData = process_data(rawdata, dPlotVars, logObj)
