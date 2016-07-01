@@ -577,8 +577,47 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     # Offset value for plotting Vr values
     y_offset = 0.025
 
-    def plot_core_diam():
+    # Helper dictionary for consistent logging messages
+    dictLogMsg = {
+        'plot_corediam': 'core diameter',
+        'plot_shear': 'shear',
+        'plot_VrPoints': 'Vr data points alone',
+        'plot_VrPoints_NumOnly': 'Vr data points as numbers without markers',
+        'plot_VrContours_Raw': 'Vr data points with contours based on raw input values',
+        'plot_VrContours_GridInterp': 'Vr data points with contours based on gridded interpolation between raw input values',
+        'plot_VrContours_TriangInterp': {
+            'unrefined': 'Vr data points with contours based on triangular interpolation between raw input values',
+            'refined': 'Vr data points with contours based on triangular interpolation between raw input values, using a refiner'
+        },
+        'plot_VrContours_Filled_GridInterp': 'Vr filled contours with gridded interpolation',
+        'plot_VrContours_Filled_TriangInterp': {
+            'unrefined': 'Vr filled contours with triangular interpolation',
+            'refined': 'Vr filled contours with triangular interpolation, using a refiner'
+        },
+        'plot_Vr_RayWolf': 'Ray Wolf\'s scatter plot'
+    }
+
+    def is_all_missing(data, name):
+        # Helper function. Returns 'True' if all data is missing.
+        # data: (np array) data to check
+        # name: (string) plot text to use in the logger message
+
+        nancheck = False
+
+        nanind = np.where(np.isnan(data))[0]
+        if len(nanind) is data.size:
+            nancheck = True
+            lumberjack.warning('No non-missing data points found for %s. Skipping this plot.' % (name))
+
+        return nancheck
+    
+
+    def plot_corediam():
         # Rely on variable scope
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(corediam, dictLogMsg['plot_corediam']):
+            return None
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -632,6 +671,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     def plot_shear():
         # Rely on variable scope
 
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(shear, dictLogMsg['plot_shear']):
+            return None
+
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         for a in np.arange(0, len(elev)):
@@ -656,6 +699,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     def plot_VrPoints():
         # Vr data points alone
         # Rely on variable scope
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrPoints']):
+            return None
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -691,6 +738,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     def plot_VrPoints_NumOnly():
         # Vr data points alone as color-coded numbers without markers
         # Rely on variable scope
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrPoints_NumOnly']):
+            return None
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -727,6 +778,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         
         # NEVER USE THIS PLOT. The data set is nearly always too sparse for the
         # contouring algorithm to handle properly.
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrContours_Raw']):
+            return None
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -767,6 +822,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     def plot_VrContours_GridInterp():
         # Vr points with contours based on gridded interpolation.
         # Rely on variable scope
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrContours_GridInterp']):
+            return None
         
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -828,17 +887,23 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # Vr points with contours based on triangular interpolation
         # Rely on variable scope
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
-
         if refine:
             triangles = tri_refi
             zvals = z_refi
             suffix = '_TriRefi'
+            key = 'refined'
         else:
             triangles = triang
             zvals = z2.flatten()
             suffix = ''
+            key = 'unrefined'
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrContours_TriangInterp'][key]):
+            return None
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
 
         CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
         plt.clabel(CS, inline = 1, fontsize = 15, fmt = '%.0f')
@@ -874,6 +939,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     def plot_VrContours_Filled_GridInterp():
         # Vr points with filled contours based on gridded interpolation
         # Rely on variable scope
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrContours_Filled_GridInterp']):
+            return None
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -928,17 +997,23 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # Vr points with filled contours based on triangular interpolation
         # Rely on variable scope
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
-
         if refine:
             triangles = tri_refi
             zvals = z_refi
             suffix = '_TriRefi'
+            key = 'refined'
         else:
             triangles = triang
             zvals = z2.flatten()
             suffix = ''
+            key = 'unrefined'
+
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_VrContours_Filled_TriangInterp'][key]):
+            return None
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
 
         CSF = ax.tricontourf(triangles, zvals, ContourIntervals, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
         
@@ -981,6 +1056,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         # FutureDev: marker size indicates core diam instead, plotted over Vr?
 
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(z, dictLogMsg['plot_Vr_RayWolf']):
+            return None
+
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         
@@ -1012,51 +1091,51 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     # Testing
     
     # Core diameter
-    lumberjack.info('Plotting core diameter')
-    plot_core_diam()
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_corediam']))
+    plot_corediam()
 
     # Shear
-    lumberjack.info('Plotting shear')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_shear']))
     plot_shear()
 
     # Vr data points
-    lumberjack.info('Plotting Vr data points alone')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrPoints']))
     plot_VrPoints()
 
     # Vr values color-coded by binned values
-    lumberjack.info('Plotting Vr data points as numbers without markers')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrPoints_NumOnly']))
     plot_VrPoints_NumOnly()
 
     ## Vr contours based on raw input values. NEVER USE THIS PLOT.
-    ##lumberjack.info('Plotting Vr data points with contours based on raw input values')
+    ##lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_Raw']))
     ##plot_VrContours_Raw()
     
     # Vr contours based on gridded interpolation.
-    lumberjack.info('Plotting Vr data points with contours based on gridded interpolation between raw input values')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_GridInterp']))
     plot_VrContours_GridInterp()
 
     # Vr contours based on triangular interpolation.
-    lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_TriangInterp']['unrefined']))
     plot_VrContours_TriangInterp(refine = False)
 
     # Vr contours based on triangular interpolation with a refiner.
-    lumberjack.info('Plotting Vr data points with contours based on triangular interpolation between raw input values, using a refiner')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_TriangInterp']['refined']))
     plot_VrContours_TriangInterp(refine = True)
 
     # Vr filled contours based on gridded interpolation.
-    lumberjack.info('Plotting Vr filled contours with gridded interpolation')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_Filled_GridInterp']))
     plot_VrContours_Filled_GridInterp()
 
     # Vr filled contours based on triangular interpolation.
-    lumberjack.info('Plotting Vr filled contours with triangular interpolation')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_Filled_TriangInterp']['unrefined']))
     plot_VrContours_Filled_TriangInterp(refine = False)
 
     # Vr filled contours based on triangular interpolation with a refiner.
-    lumberjack.info('Plotting Vr filled contours with triangular interpolation, using a refiner')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_VrContours_Filled_TriangInterp']['refined']))
     plot_VrContours_Filled_TriangInterp(refine = True)
 
     # Vr plot style requested by Ray Wolf
-    lumberjack.info('Plotting Ray Wolf\'s scatter plot')
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_Vr_RayWolf']))
     plot_Vr_RayWolf()
 
     return None
