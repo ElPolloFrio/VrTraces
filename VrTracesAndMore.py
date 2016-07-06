@@ -358,7 +358,7 @@ def process_data(data, dictPlotParms, lumberjack):
 
     # Mask Vr gridz values where they are less than the input data. This is to
     # mitigate an interpolation artifact where tight gradients are shown between
-    # y = 0 and the lowest height for which there is data present.
+    # y = 0 and the lowest height for which there is data present. 
     thresh = 0.5 * np.nanmin(z)
     gridz = np.ma.masked_where(gridz < thresh, gridz)
 
@@ -591,10 +591,10 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         'plot_VrPoints': 'Vr data points alone',
         'plot_VrPoints_NumOnly': 'Vr data points as numbers without markers',
         'plot_VrContours_Raw': 'Vr data points with contours based on raw input values',
-        'plot_VrContours_GridInterp': 'Vr data points with contours based on gridded interpolation between raw input values',
+        'plot_VrContours_GridInterp': 'Vr data points with contours based on gridded interpolation',
         'plot_VrContours_TriangInterp': {
-            'unrefined': 'Vr data points with contours based on triangular interpolation between raw input values',
-            'refined': 'Vr data points with contours based on triangular interpolation between raw input values, using a refiner'
+            'unrefined': 'Vr data points with contours based on triangular interpolation',
+            'refined': 'Vr data points with contours based on triangular interpolation, using a refiner'
         },
         'plot_VrContours_Filled_GridInterp': 'Vr filled contours with gridded interpolation',
         'plot_VrContours_Filled_TriangInterp': {
