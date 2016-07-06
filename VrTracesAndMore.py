@@ -854,7 +854,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             lbls = ContourTickLabels
             for l, s in zip(CS.levels, lbls):
                 fmt[l] = s
-            plt.clabel(CS, CS.levels, inline = True, fmt = fmt, fontsize = base_fontsize)
+            plt.clabel(CS, CS.levels, inline = True, fmt = fmt, fontsize = base_fontsize + 3)
             ## Plot the grid used for interpolation as a troubleshooting guide.
             #plt.scatter(gridx, gridy)
         else:
@@ -922,7 +922,19 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         #CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
         CS = ax.tricontour(triangles, zvals, ConInt, linewidths = 3, colors = ContourCols, corner_mask = True)
-        plt.clabel(CS, inline = 1, fontsize = 15, fmt = '%.0f')
+
+        if ContourAlgFailure:
+            # Plot at val+adj but label it as val because of problems with the
+            # contouring algorithm. 
+            fmt = {}
+            lbls = ContourTickLabels
+            for l, s in zip(CS.levels, lbls):
+                fmt[l] = s
+            plt.clabel(CS, CS.levels, inline = True, fmt = fmt, fontsize = base_fontsize + 3)
+            ## Plot the grid used for interpolation as a troubleshooting guide.
+            #plt.scatter(gridx, gridy)
+        else:
+            plt.clabel(CS, inline = 1, fontsize = base_fontsize + 3, fmt = '%.0f')
 
         for a in np.arange(0, len(x)):
             plt.scatter(t2D[a,:], y[a,:], c = 'k', marker = markers[a], label = '%.1f deg' % elev[a])
