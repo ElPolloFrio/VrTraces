@@ -840,7 +840,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if ContourAlgFailure:
             ConInt = ContourIntervals_AlgFail
             suffix = '_AlgFail'
-            lumberjack.info('Applied algorithm failure adjustment factor to Vr contours plot with gridded interpolation')            
+            lumberjack.info('Applied algorithm failure adjustment factor')
         else:
             suffix = ''
             ConInt = ContourIntervals
@@ -905,6 +905,14 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             suffix = ''
             key = 'unrefined'
 
+        if ContourAlgFailure:
+            ConInt = ContourIntervals_AlgFail
+            suffix_alg = '_AlgFail'
+            lumberjack.info('Applied algorithm failure adjustment factor')
+        else:
+            suffix_alg = ''
+            ConInt = ContourIntervals
+
         # Don't bother plotting if all data is missing.
         if is_all_missing(z, dictLogMsg['plot_VrContours_TriangInterp'][key]):
             return None
@@ -912,7 +920,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
 
-        CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
+        #CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
+        CS = ax.tricontour(triangles, zvals, ConInt, linewidths = 3, colors = ContourCols, corner_mask = True)
         plt.clabel(CS, inline = 1, fontsize = 15, fmt = '%.0f')
 
         for a in np.arange(0, len(x)):
@@ -936,7 +945,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
-        fname = '{}_{}{}.png'.format(base_fname, 'VrContours_InterpTriang', suffix)
+        fname = '{}_{}{}{}.png'.format(base_fname, 'VrContours_InterpTriang', suffix, suffix_alg)
         fig.set_size_inches(figsize)
         plt.savefig(fname)
 
@@ -1015,14 +1024,23 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             suffix = ''
             key = 'unrefined'
 
+        if ContourAlgFailure:
+            ConInt = ContourIntervals_AlgFail
+            suffix_alg = '_AlgFail'
+            lumberjack.info('Applied algorithm failure adjustment factor')
+        else:
+            suffix_alg = ''
+            ConInt = ContourIntervals
+
         # Don't bother plotting if all data is missing.
         if is_all_missing(z, dictLogMsg['plot_VrContours_Filled_TriangInterp'][key]):
             return None
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
-
-        CSF = ax.tricontourf(triangles, zvals, ContourIntervals, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
+        
+        #CSF = ax.tricontourf(triangles, zvals, ContourIntervals, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
+        CSF = ax.tricontourf(triangles, zvals, ConInt, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
         
         cbar = fig.colorbar(CSF)
 
@@ -1049,7 +1067,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
-        fname = '{}_{}{}.png'.format(base_fname, 'VrFilled_InterpTriang', suffix)
+        fname = '{}_{}{}{}.png'.format(base_fname, 'VrFilled_InterpTriang', suffix, suffix_alg)
         fig.set_size_inches(figsize)
         plt.savefig(fname)
         
