@@ -644,19 +644,19 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         for a in np.arange(0, len(elev)):
             colorVal = scalarMap.to_rgba(values[a])
             if elev[a] <= 1.4:
-                ax.plot(t, corediam[a], '-', lw=2, color = colorVal, label = '%.1f deg' % elev[a])
+                ax.plot(t, corediam[a], '-', linewidth = 2, color = colorVal, label = '%.1f deg' % elev[a])
             elif elev[a] <= 5.0:
-                ax.plot(t, corediam[a], '--', lw=2, color = colorVal, label = '%.1f deg' % elev[a])
+                ax.plot(t, corediam[a], '--', linewidth = 2, color = colorVal, label = '%.1f deg' % elev[a])
             else:
-                ax.plot(t, corediam[a], ':', lw=2, color = colorVal, label = '%.1f deg' % elev[a])
+                ax.plot(t, corediam[a], ':', linewidth = 2, color = colorVal, label = '%.1f deg' % elev[a])
 
         ## Alternate method to automatically pick line colors, but it is not always very readable
         ## and duplicates sometimes occur. 
         #for a in np.arange(0, len(elev)):
         #    if elev[a] <= 1.4:
-        #        ax.plot(t, corediam[a], '-', lw=2, label = '%.1f deg' % elev[a])
+        #        ax.plot(t, corediam[a], '-', linewidth = 2, label = '%.1f deg' % elev[a])
         #    else:
-        #        ax.plot(t, corediam[a], '--', lw=2, label = '%.1f deg' % elev[a])
+        #        ax.plot(t, corediam[a], '--', linewidth = 2, label = '%.1f deg' % elev[a])
 
         ax.yaxis.grid(True)
         # LFP stands for "legend font properties"
@@ -698,7 +698,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax = fig.add_subplot(1,1,1)
         for a in np.arange(0, len(elev)):
             colorVal = scalarMap.to_rgba(values[a])
-            ax.plot(t, shear[a], '-', lw = 2, color = colorVal, label = '%.1f deg' % elev[a])
+            ax.plot(t, shear[a], '-', linewidth = 2, color = colorVal, label = '%.1f deg' % elev[a])
         ax.yaxis.grid(True)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
