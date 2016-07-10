@@ -127,17 +127,10 @@ def set_vars(configfile):
     #   triangular refiner. Set this to the number of subdivisions for each
     #   triangle. Typical values are 1-3. This script will disallow anything
     #   above 4.
-    # 
-    # VrContoursBins: (comma-separated list of integers or decimal numbers) Bin
-    #   values for the gridded and triangulated contoured Vr plots. Note that the
-    #   plotting fails if the lowest specified contour is not found in the data.
-    #
-    # VrContoursCols: (comma-separated list of strings which must be valid matplotlib
-    #   color designations) Colors associated with the bin values defined above. This
-    #   is used on the gridded and triangulated contoured Vr plots.
     #
     # ContourIntervals: (comma-separated list of integers or decimal numbers) Bin
-    #   values for the gridded and triangulated contoured Vr plots.
+    #   values for the gridded and triangulated contoured Vr plots. Note that the
+    #   plotting may fail if the lowest specified contour is not found in the data.
     #
     # ContourCols: (comma-separated list of strings which must be valid matplotlib
     #   color designations) Colors associated with the bin values defined above. This
@@ -173,11 +166,11 @@ def set_vars(configfile):
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
-            if key in ['VrPointsBins', 'VrPointsCols', 'VrContoursBins', 'VrContoursCols', 'ContourIntervals', 'ContourCols', 'ContourTickLabels']:
+            if key in ['VrPointsBins', 'VrPointsCols', 'ContourIntervals', 'ContourCols', 'ContourTickLabels']:
                 # Turn a comma-separated text list into a Python list
                 val = val.split(',')
                 val = [x.strip() for x in val]
-                if key in ['VrPointsBins', 'VrContoursBins', 'ContourIntervals']:
+                if key in ['VrPointsBins', 'ContourIntervals']:
                     # Convert bin values from strings to floats
                     val = [float(x) for x in val]
                 if key in ['ContourIntervals', 'ContourCols']:
@@ -200,7 +193,7 @@ def set_vars(configfile):
     # Add single-letter names to the list of valid colors
     for k in matplotlib.colors.ColorConverter.colors.keys():
         valid_colors.append(k)
-    for x in ['VrPointsCols', 'VrContoursCols', 'ContourCols']:
+    for x in ['VrPointsCols', 'ContourCols']:
         for c in dictPlotParms[x]:
             if '#' in c:
                 # Confirm that it's a valid hex color code
@@ -215,14 +208,14 @@ def set_vars(configfile):
     assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
 
     # Make sure each specified bin has an associated color.
-    thing1 = ['VrPointsBins', 'VrContoursBins', 'ContourIntervals']
-    thing2 = ['VrPointsCols', 'VrContoursCols', 'ContourTickLabels']
+    thing1 = ['VrPointsBins', 'ContourIntervals']
+    thing2 = ['VrPointsCols', 'ContourTickLabels']
     for a, b in zip(thing1, thing2):
         assert len(dictPlotParms[a]) is len(dictPlotParms[b]), 'Oops. %s has %s entries but %s has %s. They should be equal.' % (a, len(dictPlotParms[a]), b, len(dictPlotParms[b]))
 
     # The contour intervals for filled plots are slightly different. Proper plotting requires
     # one more interval than there are colors.
-    assert len(dictPlotParms['ContourIntervals']) is len(dictPlotParms['ContourCols']) + 1, 'Oops. VrContoursBins has %s entries but VrContoursCols has %s. They should be equal.' % (len(dictPlotParms['ContourIntervals']), len(dictPlotParms['ContourCols']))
+    assert len(dictPlotParms['ContourIntervals']) is len(dictPlotParms['ContourCols']) + 1, 'Oops. ContourIntervals has %s entries but ContourCols has %s. There should be one more interval specified than there are colors specified. See the sample config files.' % (len(dictPlotParms['ContourIntervals']), len(dictPlotParms['ContourCols']))
 
     return dictPlotParms
 
@@ -558,9 +551,6 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     points_binIndices = np.digitize(z2.flatten(), points_bins)
     points_binIndices = np.reshape(points_binIndices, z2.shape)
 
-    VrContoursBins = dictUserParms['VrContoursBins']
-    VrContoursCols = dictUserParms['VrContoursCols']
-
     gridx = dictPlotThis['gridx']
     gridy = dictPlotThis['gridy']
     gridz = dictPlotThis['gridz']
@@ -576,6 +566,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ContourAlgFailure = True
         temp = np.array(ContourIntervals) + adj_factor
         ContourIntervals_AlgFail = tuple(temp.tolist())
+        # FutureDev: generate tick labels instead of user-specified in config file
 
     triang = dictPlotThis['triang']
     tri_refi = dictPlotThis['tri_refi']
@@ -642,7 +633,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # Number of curves to plot.
         ncurves = len(elev)
         # 0-indexed list of line numbers used to take samples from the colormap.
-        values = range(ncurves) 
+        values = range(ncurves)
         colmap = plt.get_cmap(dictUserParms['corediam_colmap'])
         cNorm = colors.Normalize(vmin = 0, vmax = values[-1])
         scalarMap = cmx.ScalarMappable(norm = cNorm, cmap = colmap)
@@ -815,7 +806,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         
         # The line below fails if the lowest contour specified isn't found in the data set.
         # FutureDev: check for this case and adjust the bin values and colors as needed
-        CS = ax.contour(t2D, y2, z2, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
+        #CS = ax.contour(t2D, y2, z2, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
+        CS = ax.contour(t2D, y2, z2, list(ContourIntervals)[:-1], linewidths = 3, colors = ContourCols, corner_mask = True)
         plt.clabel(CS, inline = 1, fontsize = base_fontsize + 3, fmt = '%.0f')
 
         for a in np.arange(0, len(x)):
