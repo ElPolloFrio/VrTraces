@@ -1158,7 +1158,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.xticks(t, timestr, rotation = '60')
         plt.tight_layout()
 
-        # FutureDev: figure out how to get a legend to show the meaning of marker size and color.
+        # FutureDev: figure out how to get a legend to show the meaning of marker size. Also add transparency?
 
         fname = '{}_{}_RayWolf.png'.format(base_fname, 'VrPoints')
         fig.set_size_inches(figsize)
