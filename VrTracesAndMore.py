@@ -88,9 +88,17 @@ def set_vars(configfile):
     #   diameter plot. Good options include 'hsv', 'gist_rainbow', 'Spectral',
     #   and 'Paired'. Note that these names are case-sensitive.
     #
+    # shear_colmap: (string, must be a valid matplotlib colormap name)
+    #   A matplotlib colormap from which to select colors to use for the shear
+    #   plot.
+    #
     # filled_contour_colmap: (string, must be a valid matplotlib colormap name)
     #   A matplotlib colormap to use on the filled contour plots. Good options
     #   include 'hot_r'.
+    #
+    # RayWolf_colmap: (string, must be a valid matplotlib colormap name)
+    #   A matplotlib colormap from which to select colors to use for the Ray
+    #   Wolfe plot. 
     #
     # modulo_for_timeticks: (integer) Increase this value to 2 or 4 if too
     #   many time ticks are shown on the x-axis. To show all time ticks, set
@@ -183,7 +191,7 @@ def set_vars(configfile):
     # 'corediam_colmap' and 'filled_contour_colmap' must be valid maplotlib colormap
     # names.
     valid_colmaps = sorted(x for x in plt.cm.datad)
-    for x in ['corediam_colmap', 'filled_contour_colmap']:
+    for x in ['corediam_colmap', 'filled_contour_colmap', 'RayWolf_colmap', 'shear_colmap']:
         assert dictPlotParms[x] in valid_colmaps, 'Oops. The config file has an invalid entry for %s. "%s" is not a valid matplotlib colormap.' % (x, dictPlotParms[x])
 
     # The entries in 'VrPointsCols', 'VrContoursCols', and 'ContourCols' must each be
@@ -682,10 +690,22 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if is_all_missing(shear, dictLogMsg['plot_shear']):
             return None
 
+        # Specify the line colors from a colormap.
+        #
+        # Number of curves to plot.
+        ncurves = len(elev)
+        # 0-indexed list of line numbers used to take samples from the colormap.
+        values = range(ncurves) 
+        colmap = plt.get_cmap(dictUserParms['shear_colmap'])
+        cNorm = colors.Normalize(vmin = 0, vmax = values[-1])
+        scalarMap = cmx.ScalarMappable(norm = cNorm, cmap = colmap)
+        #print scalarMap.get_clim()
+
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         for a in np.arange(0, len(elev)):
-            ax.plot(t, shear[a], '-', lw = 2, label = '%.1f deg' % elev[a])
+            colorVal = scalarMap.to_rgba(values[a])
+            ax.plot(t, shear[a], '-', lw = 2, color = colorVal, label = '%.1f deg' % elev[a])
         ax.yaxis.grid(True)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
@@ -1099,15 +1119,35 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
-        
+
+        # Take a matplotlib colormap and normalize it to the data set values.
+        colmap = plt.get_cmap(dictUserParms['RayWolf_colmap'])
+        vmin = np.nanmin(z)
+        vmax = np.nanmax(z)
+        cNorm = colors.Normalize(vmin = vmin, vmax = vmax)
+        scalarMap = cmx.ScalarMappable(norm = cNorm, cmap = colmap)
+
         # Must specify the radius of the marker size for each point, but must first
         # calculate those values based on the aspect of the data set with which it
         # should vary.
         # Experiment to find an expression which brings out the values and looks good.
         for a in np.arange(0, len(x)):
+            # Varying radius, constant color
             #plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = 'k', marker = 'o', label = '%.1f deg' % elev[a])
-            plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
+            # Constant radius, varying color
             #plt.scatter(t2D[a,:], y[a,:], s = 35, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
+            # Varying radius, varying color
+            #plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
+
+            colorVal = scalarMap.to_rgba(z[a,:])
+            plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
+
+        # Since neither imshow nor contourf was used, plt.colorbar() won't work. To get a colorbar,
+        # one must first create a dummy scalar mappable from which to create the colorbar.
+        sm = plt.cm.ScalarMappable(cmap = colmap)
+        sm.set_array([1, np.nanmax(z) + 1])
+        cbar = plt.colorbar(sm)
+            
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
         plt.title(vr_labels['title'])
