@@ -136,12 +136,6 @@ def set_vars(configfile):
     #   color designations) Colors associated with the bin values defined above. This
     #   is used on the gridded and triangulated contoured Vr plots.
     #
-    # ContourTickLabels: (comma-separated list of integers or decimals) This is for
-    #   convenience when using the gridded contoured plots with a contouring algorithm
-    #   failure. Plotting at 14.9 but labeling it as 15, for example, because the contouring
-    #   algorithm failed when plotting at 15. Make sure that each defined interval has an
-    #   associated label.
-    #
     # rcParamsFontSize: (integer) Ron always wanted bigger numbers. Change this to change
     #   the font size, as in plt.rcParams['font.size'] = 18.
     
@@ -166,10 +160,13 @@ def set_vars(configfile):
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
-            if key in ['VrPointsBins', 'VrPointsCols', 'ContourIntervals', 'ContourCols', 'ContourTickLabels']:
+            if key in ['VrPointsBins', 'VrPointsCols', 'ContourIntervals', 'ContourCols']:
                 # Turn a comma-separated text list into a Python list
                 val = val.split(',')
                 val = [x.strip() for x in val]
+                if key == 'ContourIntervals':
+                    # Generate tick labels in case they are needed for alg_adj
+                    dictPlotParms['ContourTickLabels'] = val
                 if key in ['VrPointsBins', 'ContourIntervals']:
                     # Convert bin values from strings to floats
                     val = [float(x) for x in val]
@@ -178,6 +175,8 @@ def set_vars(configfile):
                     val = tuple(val)
             # Assign configuration items to the dictionary
             dictPlotParms[key] = val
+
+    print dictPlotParms['ContourTickLabels']
 
     # QC user input from the config file.
 
@@ -208,8 +207,8 @@ def set_vars(configfile):
     assert dictPlotParms['tri_subdivisions'] <= 4, 'Oops. The value for tri_subdivisions is too high. Typical values are 1-3.'
 
     # Make sure each specified bin has an associated color.
-    thing1 = ['VrPointsBins', 'ContourIntervals']
-    thing2 = ['VrPointsCols', 'ContourTickLabels']
+    thing1 = ['VrPointsBins']
+    thing2 = ['VrPointsCols']
     for a, b in zip(thing1, thing2):
         assert len(dictPlotParms[a]) is len(dictPlotParms[b]), 'Oops. %s has %s entries but %s has %s. They should be equal.' % (a, len(dictPlotParms[a]), b, len(dictPlotParms[b]))
 
@@ -556,7 +555,6 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     gridz = dictPlotThis['gridz']
 
     ContourIntervals = dictUserParms['ContourIntervals']
-    ContourTickLabels = dictUserParms['ContourTickLabels']
     ContourCols = dictUserParms['ContourCols']
 
     # Handle the algorithm failure parameter, if specified
@@ -566,7 +564,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ContourAlgFailure = True
         temp = np.array(ContourIntervals) + adj_factor
         ContourIntervals_AlgFail = tuple(temp.tolist())
-        # FutureDev: generate tick labels instead of user-specified in config file
+        ContourTickLabels = dictUserParms['ContourTickLabels']
 
     triang = dictPlotThis['triang']
     tri_refi = dictPlotThis['tri_refi']
