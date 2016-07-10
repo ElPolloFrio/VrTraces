@@ -709,7 +709,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             ax.plot(t, shear[a], '-', linewidth = 2, color = colorVal, label = '%.1f deg' % elev[a])
         ax.yaxis.grid(True)
         # LFP stands for "legend font properties"
-        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
         plt.title(shear_labels['title'])
         plt.xlabel(shear_labels['xlabel'])
@@ -744,7 +744,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
         # LFP stands for "legend font properties"
-        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
 
         # Plot the numbers
@@ -967,7 +967,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
         # LFP stands for "legend font properties"
-        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
         # Code to plot the numbers as a troubleshooting aid. Turns out that Ron likes
         # this, so include it in the final image. 
@@ -1031,7 +1031,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.ylabel(vr_labels['ylabel'])
         plt.xticks(t, timestr, rotation = '60')
         # LFP stands for "legend font properties"
-        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
@@ -1096,7 +1096,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.ylabel(vr_labels['ylabel'])
         plt.xticks(t, timestr, rotation = '60')
         # LFP stands for "legend font properties"
-        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
+        LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
         ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
