@@ -1,0 +1,17 @@
+filename = sample02.csv
+mv_name = MV 2 (sample)
+tz_units = local
+corediam_units = meters
+height_units = kft
+corediam_colmap = Paired
+shear_colmap = Accent
+filled_contour_colmap = CMRmap_r
+RayWolf_colmap = gnuplot2
+modulo_for_timeticks = 1
+VrPointsBins = 15, 20, 25, 30, 35, 40
+VrPointsCols = #CCCCCC, #969696, #3071D9, #6AF022, #FFEB24, #F72350
+Vr_algfail_adj = -0.1
+tri_subdivisions = 3
+ContourIntervals = 10, 15, 20, 25, 30, 35, 40
+ContourCols = lightgray, burlywood, saddlebrown, orange, orangered, maroon
+rcParamsFontSize = 18
