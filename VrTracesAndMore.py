@@ -68,10 +68,6 @@ def set_vars(configfile):
     # mv_name: (string) Name or designation of the mesovortex. This is used
     #   in the figure titles. 
     #
-    # vr_ylim: (integer or decimal) Upper limit of the y-axis for the Vr
-    #   plots. Pick a value that's near or slightly higher than the highest
-    #   height in the spreadsheet for Vr values.
-    #
     # tz_units: (string) Time zone designation to use on the x-axis for all
     #   time series plots. This should be the same time zone used in the
     #   spreadsheet. Typically, that would be UTC since radar data sets are
@@ -156,7 +152,7 @@ def set_vars(configfile):
             key = parts[0].strip()
             val = parts[1].strip()
             # Convert from strings to other data types
-            if key in ['vr_ylim', 'Vr_algfail_adj']:
+            if key in ['Vr_algfail_adj']:
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
@@ -175,8 +171,6 @@ def set_vars(configfile):
                     val = tuple(val)
             # Assign configuration items to the dictionary
             dictPlotParms[key] = val
-
-    print dictPlotParms['ContourTickLabels']
 
     # QC user input from the config file.
 
@@ -305,7 +299,17 @@ def process_data(data, dictPlotParms, lumberjack):
     dictPlotThis['x'] = x
     dictPlotThis['y'] = y
     dictPlotThis['z'] = z        
-        
+
+    # Determine vr_ylim from the data set. Round to the nearest increment ('val')
+    # that's greater than ymax.
+    val = 0.5
+    ymax = np.nanmax(y)
+    if ymax % val == 0:
+        ymax = ymax + val
+    vr_ylim = val * np.ceil(ymax/val)
+    dictPlotThis['vr_ylim'] = vr_ylim
+    lumberjack.info('Upper bound for Vr plots shall be %s' % (vr_ylim))
+    
     lumberjack.info('Finished Vr traces data preparation')
 
     # Some plotting functions require versions of y and z without nans
@@ -540,7 +544,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     z = dictPlotThis['z']
     y2 = dictPlotThis['y2']
     z2 = dictPlotThis['z2']
-    vr_ylim = dictUserParms['vr_ylim']
+    vr_ylim = dictPlotThis['vr_ylim']
     vr_labels = dictPlotLabels['Vr']
 
     points_bins = dictUserParms['VrPointsBins']
