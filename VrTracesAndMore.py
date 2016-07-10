@@ -232,8 +232,16 @@ def process_data(data, dictPlotParms, lumberjack):
     numElevAngles = len(elevstr)
     lumberjack.info('There are %s elevation angles', numElevAngles)
 
+    # Values in the time column ought to be zero-padded to a width of 4
+    # characters. Sometimes, working with CSV files in Excel causes the
+    # leading zeros to be silently dropped. See the README file for
+    # instructions on how to preserve leading zeros in Excel.
+    rawtime = data[:,1].tolist()
+    rawtime = ['%04i' % (int(x)) for x in rawtime]
+
     # Figure out how many time steps are present.
-    timestr = np.unique(data[:,1]).tolist()[:]
+    #timestr = np.unique(data[:,1]).tolist()[:]
+    timestr = np.unique(rawtime)
     numTimeTicks = len(timestr)
     lumberjack.info('There are %s time steps', numTimeTicks)
     # Construct array 't' to plot time, but use 'timestr' for labels
