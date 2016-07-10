@@ -10,7 +10,7 @@ Output: a set of graphics including Vr traces
 
 Data points for mesovortices are typically obtained by examining archived radar data from a WSR-88D or TDWR. Archived radar data is freely available from NCEI (formerly NCDC) and can be viewed with the free NCDC Weather and Climate Toolkit or with a specialized program such as GR2Analyst.
 
-A sample CSV file is provided, along with the output graphics produced by this script.
+Sample CSV files are provided, along with the output graphics produced by this script.
 
 The CSV file should resemble the following example, including headers:
 elevation angle, time, height, vr value, core diameter, shear
@@ -40,4 +40,4 @@ The Vr, core diameter, or shear values for an elevation angle at a given time st
 
 Every elevation angle DOES NOT need to be present for every time step. It's OK if some elevation angles are given sporadically. For example, in the short CSV example above, the 1307 time step does not have an entry for 3.1 degrees, but the 1311 time step does. 
 
-Sometimes, a forecaster may not be interested in all three quantities (Vr, core diameter, or shear), or he/she may not have collected data points for all three quantities. If no data points are available for Vr, core diameter, or shear, then use "M" for the values in that entire column (except for the header). 
+Sometimes, a forecaster may not be interested in all three quantities (Vr, core diameter, or shear), or he/she may not have collected data points for all three quantities. If no data points are available for Vr, core diameter, or shear, then use "M" for the values in that entire column (except for the header). If no data is provided, that plot will be skipped automatically. 
