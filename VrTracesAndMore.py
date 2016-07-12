@@ -442,9 +442,7 @@ def process_data(data, dictPlotParms, lumberjack):
     min_y_interp = []
     max_y_interp = []
     for i in range(len(xstep)-1):
-        a = xstep[i]
-        b = xstep[i + 1]
-        diff = b - a
+        diff = xstep[i + 1] - xstep[i]
         xstep_interp.append(a)
         xstep1 = a + (1/3.0)*diff
         xstep2 = a + (2/3.0)* diff
