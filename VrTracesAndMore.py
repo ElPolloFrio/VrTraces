@@ -1028,6 +1028,14 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         #CS = ax.tricontour(triangles, zvals, VrContoursBins, linewidths = 3, colors = VrContoursCols, corner_mask = True)
         CS = ax.tricontour(triangles, zvals, ConInt, linewidths = 3, colors = ContourCols, corner_mask = True)
 
+        ## Plot triangles as a troubleshooting aid
+        #plt.triplot(triangles, 'k-')
+
+        ## Plot triangle midpoints as a troubleshooting aid
+        #ymid = y2.flatten()[triang.triangles].mean(axis = 1)
+        #xmid = t2D.flatten()[triang.triangles].mean(axis = 1)
+        #plt.scatter(xmid, ymid, marker = 'o', color = 'red', s = 5)
+
         if ContourAlgFailure:
             # Plot at val+adj but label it as val because of problems with the
             # contouring algorithm. 
@@ -1037,7 +1045,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
                 fmt[l] = s
             plt.clabel(CS, CS.levels, inline = True, fmt = fmt, fontsize = base_fontsize + 3)
             ## Plot the grid used for interpolation as a troubleshooting guide.
-            #plt.scatter(gridx, gridy)
+            #plt.triplot(triangles, 'k-')
         else:
             plt.clabel(CS, inline = 1, fontsize = base_fontsize + 3, fmt = '%.0f')
 
