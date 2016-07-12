@@ -1164,8 +1164,15 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         
         #CSF = ax.tricontourf(triangles, zvals, ContourIntervals, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
         CSF = ax.tricontourf(triangles, zvals, ConInt, cmap = dictUserParms['filled_contour_colmap'], corner_mask = True)
-        
-        cbar = fig.colorbar(CSF)
+
+        if ContourAlgFailure:
+            # Plot at val+adj but label it as val because of problems with the
+            # contouring algorithm. 
+            cbar = fig.colorbar(CSF, ticks = ContourIntervals)
+            cbar.ax.set_yticklabels(ContourTickLabels)
+        else:
+            #plt.colorbar(ax = ax)
+            cbar = fig.colorbar(CSF)
 
         # Scatterplot of the data points only, not the interpolation points.
         for a in np.arange(0, len(x)):
