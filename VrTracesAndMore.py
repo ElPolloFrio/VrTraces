@@ -1099,7 +1099,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if ContourAlgFailure:
             # Plot at val+adj but label it as val because of problems with the
             # contouring algorithm. 
-            cbar = fig.colorbar(CSF, ticks = ContourIntervals)
+            cbar = fig.colorbar(CSF, ticks = ConInt)
             cbar.ax.set_yticklabels(ContourTickLabels)
         else:
             plt.colorbar(ax = ax)
@@ -1168,10 +1168,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         if ContourAlgFailure:
             # Plot at val+adj but label it as val because of problems with the
             # contouring algorithm. 
-            cbar = fig.colorbar(CSF, ticks = ContourIntervals)
+            cbar = fig.colorbar(CSF, ticks = ConInt)
             cbar.ax.set_yticklabels(ContourTickLabels)
         else:
-            #plt.colorbar(ax = ax)
             cbar = fig.colorbar(CSF)
 
         # Scatterplot of the data points only, not the interpolation points.
