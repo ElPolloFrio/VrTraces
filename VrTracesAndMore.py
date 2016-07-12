@@ -383,32 +383,115 @@ def process_data(data, dictPlotParms, lumberjack):
     triang = tri.Triangulation(t2D.flatten(), y2.flatten())
     lumberjack.info('Calculated Vr triangular interpolation')
     
-    ## Mask triangles from an interpolation artifact. If the y-midpoint of any given
-    ## triangle is less than the lowest y-value in the data set, mask it.
+    # Mask triangles from an interpolation artifact. If the y-midpoint of any given
+    # triangle is less than the lowest y-value in the data set, mask it.
+    #
+    # The lengths of ymid and xmid are the number of triangles. numtri = triang.triangles.shape[0].
     ymid = y2.flatten()[triang.triangles].mean(axis = 1)
-    minmask = np.where(ymid < np.nanmin(y), True, False)
+    xmid = t2D.flatten()[triang.triangles].mean(axis = 1)
+    ymask = np.where(ymid < np.nanmin(y), True, False)
 
     # Mask triangles on a timestep-by-timestep basis using max/min y-values
     # at each timestep.
+    #
+    # The problem with this approach is that trifinder(x, y) only returns the triangle
+    # indices which contain that x,y point. It does not return the triangle indices for
+    # all triangles which are LTE/GTE that x,y point, which is what is needed.
+    #min_y = np.nanmin(y, axis = 0)
+    #max_y = np.nanmax(y, axis = 0)
+    #xstep = t2D[0]
+    #epsilon = 0.01
+    #min_y = min_y - epsilon
+    #max_y = max_y + epsilon
+    ## Get the triangle indices for these points
+    #trifinder = triang.get_trifinder()
+    #toolo_ind = trifinder(xstep, min_y)
+    #toohi_ind = trifinder(xstep, max_y)
+    ## Mark the invalid triangles
+    #minmask[toolo_ind] = True
+    #minmask[toohi_ind] = True
+
+    def ymxb(xpt1, ypt1, xpt2, ypt2):
+        # A helper function. Given points x1,y1 and x2,y2 assumed to be along the
+        # same line, this function returns m and b from y = mx + b.
+        #
+        # m = (y2 - y1)/(x2 - x1)
+        # b = y1 - mx1
+
+        m = (ypt2 - ypt1)/(xpt2 - xpt1)
+        b = ypt1 - m*xpt1
+
+        return m, b
+
+    # Surely there are more elegant ways to do this. Hey future me, did you find any?
+    #
+    # min_y and max_y are 1D vectors containing the min/max values
+    # of y at each time step.
     min_y = np.nanmin(y, axis = 0)
     max_y = np.nanmax(y, axis = 0)
     xstep = t2D[0]
     epsilon = 0.01
     min_y = min_y - epsilon
     max_y = max_y + epsilon
-    # Get the triangle indices for these points
+    # The interpolation adds intermediate points between time steps. In fact, the x-midpoint
+    # values resemble the following: x, x + 1/3, x + 2/3, x + 1 and so on. In order to compare
+    # triangle midpoints to max/min y-values, one must first generate the interpolated values
+    # for x at time steps x + 1/3 and x + 2/3. One must also generate interpolated values for
+    # y-min and y-max at those interpolated x-values. 
+    xstep_interp = []
+    min_y_interp = []
+    max_y_interp = []
+    for i in range(len(xstep)-1):
+        a = xstep[i]
+        b = xstep[i + 1]
+        diff = b - a
+        xstep_interp.append(a)
+        xstep1 = a + (1/3.0)*diff
+        xstep2 = a + (2/3.0)* diff
+        xstep_interp.append(xstep1)
+        xstep_interp.append(xstep2)
+        # Rely on good 'ol y = mx + b.
+        # Calculate the slope and intercept parameters for the line formed
+        # by the max/min_y value at this time step and the max/min_y value
+        # at the next time step. Then use these values to calculate the
+        # interpolated values of max/min_y along the line at the two
+        # interpolated x-values.
+        min_m, min_b = ymxb(xstep[i], min_y[i], xstep[i+1], min_y[i+1])
+        max_m, max_b = ymxb(xstep[i], max_y[i], xstep[i+1], max_y[i+1])
+        min_y_interp.append(min_y[i])
+        min_y_interp.append((min_m*xstep1) + min_b)
+        min_y_interp.append((min_m*xstep2) + min_b)
+        max_y_interp.append(max_y[i])
+        max_y_interp.append((max_m*xstep1) + max_b)
+        max_y_interp.append((max_m*xstep2) + max_b)
+
+    xstep_interp.append(xstep[-1])
+    min_y_interp.append(min_y[-1])
+    max_y_interp.append(max_y[-1])
+    
+    # The trifinder returns triangle indices for the triangle containing
+    # a given x,y point.
     trifinder = triang.get_trifinder()
-    toolo_ind = trifinder(xstep, min_y)
-    toohi_ind = trifinder(xstep, max_y)
-    # Mark the invalid triangles
-    minmask[toolo_ind] = True
-    minmask[toohi_ind] = True
+    # Determine which triangles have midpoints that fall below/above
+    # the valid y-vals at each time step. 
+    for ind, val in enumerate(xstep_interp):
+        # Get the triangles centered at this time step.
+        xind = np.where(np.round(xmid, 3) == round(val, 3))
+        xtri = trifinder(xmid[xind], ymid[xind])
+        # Determine which triangles at this time step are centered too low
+        # or too high and then mask them.
+        lo_ind = np.where(ymid[xind] <= min_y_interp[ind])
+        hi_ind = np.where(ymid[xind] >= max_y_interp[ind])
+        invalid_ind = xtri[lo_ind]
+        ymask[invalid_ind] = True
+        invalid_ind = xtri[hi_ind]
+        ymask[invalid_ind] = True
 
     # Mask triangles if they are too flat (edge artifacts)
     min_circle_ratio = .01
     flatmask = tri.TriAnalyzer(triang).get_flat_tri_mask(min_circle_ratio)
 
-    mask = np.logical_or(minmask, flatmask)
+    mask = np.logical_or(ymask, flatmask)
     triang.set_mask(mask)
 
     # Refine the triangular grids for higher-res contouring
