@@ -478,12 +478,16 @@ def process_data(data, dictPlotParms, lumberjack):
         xtri = trifinder(xmid[xind], ymid[xind])
         # Determine which triangles at this time step are centered too low
         # or too high and then mask them.
-        lo_ind = np.where(ymid[xind] <= min_y_interp[ind])
-        hi_ind = np.where(ymid[xind] >= max_y_interp[ind])
-        invalid_ind = xtri[lo_ind]
-        ymask[invalid_ind] = True
-        invalid_ind = xtri[hi_ind]
-        ymask[invalid_ind] = True
+        if np.isnan(min_y_interp[ind]):
+            # Mask all triangles if all data is missing at this time step.
+            ymask[xind] = True
+        else:
+            lo_ind = np.where(ymid[xind] <= min_y_interp[ind])
+            hi_ind = np.where(ymid[xind] >= max_y_interp[ind])
+            invalid_ind = xtri[lo_ind]
+            ymask[invalid_ind] = True
+            invalid_ind = xtri[hi_ind]
+            ymask[invalid_ind] = True
 
     # Mask triangles if they are too flat (edge artifacts)
     min_circle_ratio = .01
