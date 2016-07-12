@@ -1229,15 +1229,18 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # should vary.
         # Experiment to find an expression which brings out the values and looks good.
         for a in np.arange(0, len(x)):
-            # Varying radius, constant color
-            #plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = 'k', marker = 'o', label = '%.1f deg' % elev[a])
-            # Constant radius, varying color
-            #plt.scatter(t2D[a,:], y[a,:], s = 35, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
-            # Varying radius, varying color
-            #plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = z[a,:], marker = 'o', label = '%.1f deg' % elev[a])
-
             colorVal = scalarMap.to_rgba(z[a,:])
-            plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
+            # Scatterplot fails if z[a,:] has no non-nan entries
+            nanind = np.where(np.isnan(z[a,:]))[0]
+            if len(nanind) is z[a,:].size:
+                pass
+            else:
+                # Varying radius, constant color
+                #plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = 'k', marker = 'o', label = '%.1f deg' % elev[a])
+                # Constant radius, varying color
+                #plt.scatter(t2D[a,:], y[a,:], s = 35, c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
+                # Varying radius, varying color
+                plt.scatter(t2D[a,:], y[a,:], s = (z[a,:]/2)**2, c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
 
         # Since neither imshow nor contourf was used, plt.colorbar() won't work. To get a colorbar,
         # one must first create a dummy scalar mappable from which to create the colorbar.
