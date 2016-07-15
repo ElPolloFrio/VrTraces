@@ -27,17 +27,18 @@ Use '"M" for any missing value. Exception: don't use "M" in the "time" column be
 
 Every time step between the first and last volume scan of interest MUST be present at least once in the file, even if no data is available for any elevation angle at that time step. If a time step is skipped, then the plots will be incorrect in the time axis and could be seen as misleading. To handle a missing time step, enter one line with the correct time stamp and put "M" for all other values in that row. See the sample file.
 
-IMPORTANT: Some people use Excel to edit CSV files. Remember to format the "time" column in Excel to preserve leading zeroes (e.g., "0026"). Do this every time the file is opened in Excel, even if no changes were made. To preserve leading zeroes in the "time" column, do the following:
-1. Right-click on the column letter.
+The Vr, core diameter, or shear values for an elevation angle at a given time step might be missing for any number of reasons (e.g., range folding). It's important to mark missing values as "missing", otherwise it will look as if a volume scan had been inadvertently skipped. 
+
+Every elevation angle DOES NOT need to be present for every time step. It's OK if some elevation angles are given sporadically. For example, in the short CSV example above, the 1307 time step does not have an entry for 3.1 degrees, but the 1311 time step does. 
+
+Sometimes, a forecaster may not be interested in all three quantities (Vr, core diameter, or shear), or he/she may not have collected data points for all three quantities. If no data points are available for Vr, core diameter, or shear, then use "M" for the values in that entire column (except for the header). If no data is provided, that plot will be skipped automatically. 
+
+Some people might use Excel to edit CSV files. Excel will sometimes drop the leading zeros in the "time" column, which causes problems for this script. Therefore, this script will attempt to automatically restore leading zeros. However, there might be cases where the user must manually format the "time" column in Excel to preserve leading zeros (e.g., "0026") every time the file is opened in Excel, even if no changes were made. To manually preserve leading zeros in the "time" column in Excel, do the following:
+0. Open the file in Excel.
+1. Right-click on the column letter for the "time" column.
 2. Choose "format cells".
 3. Select "custom format" from the dialog box.
 4. Type "0000" (without quotes) in the entry box.
 5. Click "apply" or "OK" on all dialog boxes.
 6. Save the file.
 7. Close the file.
-
-The Vr, core diameter, or shear values for an elevation angle at a given time step might be missing for any number of reasons (e.g., range folding). It's important to mark missing values as "missing", otherwise it will look as if a volume scan had been inadvertently skipped. 
-
-Every elevation angle DOES NOT need to be present for every time step. It's OK if some elevation angles are given sporadically. For example, in the short CSV example above, the 1307 time step does not have an entry for 3.1 degrees, but the 1311 time step does. 
-
-Sometimes, a forecaster may not be interested in all three quantities (Vr, core diameter, or shear), or he/she may not have collected data points for all three quantities. If no data points are available for Vr, core diameter, or shear, then use "M" for the values in that entire column (except for the header). If no data is provided, that plot will be skipped automatically. 
