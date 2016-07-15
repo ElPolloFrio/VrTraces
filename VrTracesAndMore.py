@@ -1225,6 +1225,17 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         colmap = plt.get_cmap(dictUserParms['RayWolf_colmap'])
         vmin = np.nanmin(z)
         vmax = np.nanmax(z)
+        # Be clever about picking the upper and lower bounds.
+        if (abs(vmax - vmin) >= 20):
+            cbarstep = 5
+        else:
+            cbarstep = 2
+        vmin = int(vmin - (vmin % cbarstep))
+        if vmin < 0:
+            vmin = 0
+        vmax = int(vmax + cbarstep - (vmax % cbarstep))
+        cbarticks = np.arange(vmin, vmax + cbarstep, cbarstep)
+        # Normalize the colormap to the chosen data range.
         cNorm = colors.Normalize(vmin = vmin, vmax = vmax)
         scalarMap = cmx.ScalarMappable(norm = cNorm, cmap = colmap)
 
@@ -1249,8 +1260,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # Since neither imshow nor contourf was used, plt.colorbar() won't work. To get a colorbar,
         # one must first create a dummy scalar mappable from which to create the colorbar.
         sm = plt.cm.ScalarMappable(cmap = colmap)
-        sm.set_array([1, np.nanmax(z) + 1])
-        cbar = plt.colorbar(sm)
+        sm.set_array([vmin, vmax])
+        cbar = plt.colorbar(sm, ticks = cbarticks)
             
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
