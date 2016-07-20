@@ -1293,8 +1293,6 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # Scatter plot with the size of the marker indicating the Vr value.
         # Rely on variable scope
 
-        # FutureDev: marker size indicates core diam instead, plotted over Vr?
-
         # Don't bother plotting if all data is missing.
         if is_all_missing(z, dictLogMsg['plot_Vr_RayWolf']):
             return None
@@ -1360,6 +1358,16 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         return None
 
+
+    def plot_Vr_Corediam():
+        # Vr points styled in two ways: by core diameter and by Vr value. Consider it to be
+        # a modification of the Ray Wolf plot above. The marker size indicates core
+        # diameter and the marker color indicates Vr value.
+        #
+        # Rely on variable scope.
+
+        return None
+    
 
     # Testing
     
