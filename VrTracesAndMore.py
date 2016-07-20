@@ -775,7 +775,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             'unrefined': 'Vr filled contours with triangular interpolation',
             'refined': 'Vr filled contours with triangular interpolation, using a refiner'
         },
-        'plot_Vr_RayWolf': 'Ray Wolf\'s scatter plot'
+        'plot_Vr_RayWolf': 'Ray Wolf\'s scatter plot',
+        'plot_Vr_Corediam': 'Vr plot with core diameter'
     }
 
     def is_all_missing(data, name):
