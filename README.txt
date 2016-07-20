@@ -2,6 +2,8 @@ This script was written to support local research efforts at WFO LSX.
 
 The script was written by L. M. Kanofsky in 2012 and it was used through 2014. It was refactored and updated in June 2016.
 
+As a courtesy, I will provide support for this script to other NOAA employees and affiliates. Please contact me at firstname.lastname@noaa.gov. My first name is "Lewis" and my last name is "Kanofsky".
+
 It requires the following:
 Python 2.7 and compatible versions of numpy, scipy, and matplotlib.
 
