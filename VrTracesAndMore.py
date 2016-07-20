@@ -1396,16 +1396,18 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
 
         # Marker size is determined by the value of core diameter for each point, arbitrarily
         # binned and then mapped to one of 5 marker sizes to improve readability.
+        numbins = 5
         core_min = np.nanmin(corediam)
         core_max = np.nanmax(corediam)
-        if core_max - core_min < 5:
+        if core_max - core_min < numbins:
             binmin = 0
         else:
             binmin = core_min
-        bins = np.linspace(binmin, core_max, num = 5, endpoint = True)
+        bins = np.linspace(binmin, core_max, num = numbins, endpoint = True)
         inds = np.digitize(corediam, bins)
         # The bin index array is pulling double duty as both the bin index and the base
-        # from which to calculate the marker size. 
+        # from which to calculate the marker size. Take 2*inds as the radius and calculate
+        # the area of a circle, which shall be the marker size.
         area = np.pi * (inds * 2)**2
         
         for a in np.arange(0, len(x)):
