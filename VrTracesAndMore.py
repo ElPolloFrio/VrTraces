@@ -340,12 +340,16 @@ def process_data(data, dictPlotParms, lumberjack):
     # Define the interpolation grid.
     # gridx: 0 to numTimeTicks by half-tick increments, plus a margin
     # gridy: y-min to y-max by 0.25 increments, plus a margin
-    #
-    # Modify the line below to change the amount of interpolation
-    #gridx, gridy = np.mgrid[0.5:numTimeTicks+1:0.5, y2.min():y2.max()+0.25:0.25]
-    #gridx, gridy = np.mgrid[0.5:numTimeTicks+1:0.5, y2.min()+4:y2.max()+0.5:0.5]
-    #gridx, gridy = np.mgrid[0.5:numTimeTicks+1:0.5, y2.min():y2.max()+0.5:0.25]
-    gridx, gridy = np.mgrid[0.5:numTimeTicks+1:0.5, y2.min():y2.max()+0.5:0.25]
+
+    # Modify these parameters to change the amount of interpolation.
+    xspan = 0.5
+    yspan = 0.25
+    xmin = 0.5
+    xmax = numTimeTicks + 1
+    ymin = y2.min()
+    ymax = y2.max() + 0.5
+
+    gridx, gridy = np.mgrid[xmin:xmax:xspan, ymin:ymax:yspan]
     lumberjack.info('Defined the Vr interpolation grid')
     
     # Vr is a function of x and y. Only the values of Vr(t, hght) are known at
