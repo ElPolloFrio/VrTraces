@@ -1366,13 +1366,77 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         #
         # Rely on variable scope.
 
-        # Don't bother plotting if all data is missing.
+        # Don't bother plotting if all data is missing. This plot requires both corediam and z.
         if is_all_missing(corediam, dictLogMsg['plot_Vr_Corediam']):
             return None
 
         if is_all_missing(z, dictLogMsg['plot_Vr_Corediam']):
             return None
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        # Take a matplotlib colormap and normalize it to the data set values.
+        colmap = plt.get_cmap(dictUserParms['RayWolf_colmap'])
+        vmin = np.nanmin(z)
+        vmax = np.nanmax(z)
+        # Be clever about picking the upper and lower bounds.
+        if (abs(vmax - vmin) >= 20):
+            cbarstep = 5
+        else:
+            cbarstep = 2
+        vmin = int(vmin - (vmin % cbarstep))
+        if vmin < 0:
+            vmin = 0
+        vmax = int(vmax + cbarstep - (vmax % cbarstep))
+        cbarticks = np.arange(vmin, vmax + cbarstep, cbarstep)
+        # Normalize the colormap to the chosen data range.
+        cNorm = colors.Normalize(vmin = vmin, vmax = vmax)
+        scalarMap = cmx.ScalarMappable(norm = cNorm, cmap = colmap)
+
+        # Marker size is determined by the value of core diameter for each point, arbitrarily
+        # binned and then mapped to one of 5 marker sizes to improve readability.
+        core_min = np.nanmin(corediam)
+        core_max = np.nanmax(corediam)
+        if core_max - core_min < 5:
+            binmin = 0
+        else:
+            binmin = core_min
+        bins = np.linspace(binmin, core_max, num = 5, endpoint = True)
+        inds = np.digitize(corediam, bins)
+        # The bin index array is pulling double duty as both the bin index and the base
+        # from which to calculate the marker size. 
+        area = np.pi * (inds * 2)**2
         
+        for a in np.arange(0, len(x)):
+            colorVal = scalarMap.to_rgba(z[a,:])
+            # Scatterplot fails if z[a,:] has no non-nan entries
+            nanind = np.where(np.isnan(z[a,:]))[0]
+            if len(nanind) is z[a,:].size:
+                pass
+            else:
+                # Varying radius, varying color
+                plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
+
+        # Since neither imshow nor contourf was used, plt.colorbar() won't work. To get a colorbar,
+        # one must first create a dummy scalar mappable from which to create the colorbar.
+        sm = plt.cm.ScalarMappable(cmap = colmap)
+        sm.set_array([vmin, vmax])
+        cbar = plt.colorbar(sm, ticks = cbarticks)
+
+        # FutureDev: add a legend for marker size.
+        
+        plt.ylim(0, vr_ylim)
+        ax.set_xlim(-0.5, len(t)+3)
+        plt.title(vr_labels['title'])
+        plt.xlabel(vr_labels['xlabel'])
+        plt.ylabel(vr_labels['ylabel'])
+        plt.xticks(t, timestr, rotation = '60')
+        plt.tight_layout()
+
+        fname = '{}_{}_VrCorediam.png'.format(base_fname, 'VrPoints')
+        fig.set_size_inches(figsize)
+        plt.savefig(fname)
 
         return None
     
