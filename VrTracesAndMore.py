@@ -1443,10 +1443,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         leg_inds = np.digitize(bins, bins)
         leg_area = np.pi * (leg_inds * 2)**2
         for i in leg_x:
-            plt.scatter(leg_x[i], leg_y[i], s = leg_area[i], marker = 'o', label = lbls[i])
-        plt.legend(title = 'Core diameter')
-        
-        
+            plt.scatter(leg_x[i], leg_y[i], s = leg_area[i], edgecolor = 'k', color = 'white', marker = 'o', label = lbls[i])
+        plt.legend(loc = 'upper right', title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
+
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
         plt.title(vr_labels['title'])
