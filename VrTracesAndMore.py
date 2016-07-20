@@ -1366,6 +1366,14 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         #
         # Rely on variable scope.
 
+        # Don't bother plotting if all data is missing.
+        if is_all_missing(corediam, dictLogMsg['plot_Vr_Corediam']):
+            return None
+
+        if is_all_missing(z, dictLogMsg['plot_Vr_Corediam']):
+            return None
+        
+
         return None
     
 
@@ -1418,6 +1426,11 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     # Vr plot style requested by Ray Wolf
     lumberjack.info('Plotting %s' % (dictLogMsg['plot_Vr_RayWolf']))
     plot_Vr_RayWolf()
+
+    # Vr plot where the marker size indicates core diameter value (if this data set was provided) and
+    # the marker color indicates the Vr value.
+    lumberjack.info('Plotting %s' % (dictLogMsg['plot_Vr_Corediam']))
+    plot_Vr_Corediam()
 
     return None
 
