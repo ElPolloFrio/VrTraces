@@ -372,11 +372,99 @@ def process_data(data, dictPlotParms, lumberjack):
     gridz = scipy.interpolate.griddata(points, values, (gridx, gridy), method = method)
     lumberjack.info('Calculated Vr grid-z')
 
-    # Mask Vr gridz values where they are less than the input data. This is to
-    # mitigate an interpolation artifact where tight gradients are shown between
-    # y = 0 and the lowest height for which there is data present. 
-    thresh = 0.5 * np.nanmin(z)
-    gridz = np.ma.masked_where(gridz < thresh, gridz)
+
+    def ymxb(xpt1, ypt1, xpt2, ypt2):
+        # A helper function. Given points x1,y1 and x2,y2 assumed to be along the
+        # same line, this function returns m and b from y = mx + b.
+        #
+        # m = (y2 - y1)/(x2 - x1)
+        # b = y1 - mx1
+
+        m = (ypt2 - ypt1)/(xpt2 - xpt1)
+        b = ypt1 - m*xpt1
+
+        return m, b
+
+    # Mask Vr gridz values where they fall outside the bounds of the input data set. This
+    # is to mitigate an interpolation artifact where tight gradients are shown between
+    # y = 0 and the lowest height for which data is present. It also addresses the issue
+    # of incorrect interpolation above the max y-values.
+    # min_y and max_y are 1D vectors containing the min/max values
+    # of y at each time step.
+    ymask = np.ma.make_mask_none(gridz.shape)
+    min_y = np.nanmin(y, axis = 0)
+    max_y = np.nanmax(y, axis = 0)
+    xstep = t2D[0]
+    epsilon = 0.01
+    min_y = min_y - epsilon
+    max_y = max_y + epsilon
+    # The interpolation adds intermediate points between time steps. In order to mask
+    # intermediate values which fall outside the bounds of the input data set, one must
+    # first calculate appropriate threshold values at the intermediate points.
+    xstep_interp = []
+    min_y_interp = []
+    max_y_interp = []
+    for i in range(len(xstep)-1):
+        diff = xstep[i + 1] - xstep[i]
+        # 1/xspan yields the number of intervals between xstep[i+1] and xstep[i].
+        # The number of intermediate points is one less than the number of intervals.
+        num_intermed_pts = int(1.0/xspan) - 1
+        xstep_interp.append(xstep[i])
+        # Rely on good ol' y = mx + b. Calculate the slope and intercept for the
+        # line formed by the max/min_y value at this time step and the max/min_y
+        # value at the next time step. Then use these values to calculate the
+        # interpolated values of max/min_y along the line at the interpolated
+        # x-values.
+        min_m, min_b = ymxb(xstep[i], min_y[i], xstep[i+1], min_y[i+1])
+        max_m, max_b = ymxb(xstep[i], max_y[i], xstep[i+1], max_y[i+1])
+
+        min_y_interp.append(min_y[i])
+        max_y_interp.append(max_y[i])
+
+        # Recall that range(a,b) loops up to but not including b.
+        for j in range(1, num_intermed_pts + 1):
+            xstep_intermed = xstep[i] + j*xspan
+            xstep_interp.append(xstep_intermed)
+            min_y_interp.append((min_m*xstep_intermed) + min_b)
+            max_y_interp.append((max_m*xstep_intermed) + max_b)
+
+    xstep_interp.append(xstep[-1])
+    min_y_interp.append(min_y[-1])
+    max_y_interp.append(max_y[-1])
+
+    # At each time step, determine which points fall outside the bounds of the
+    # input data set and mask them.
+    for ind, val in enumerate(xstep_interp):
+        #xind = np.where(gridx == val)
+        r, c = np.where(gridx == val)
+        if np.isnan(min_y_interp[ind]):
+            # Mask all values if all data is missing at this time step
+            #ymask[xind] = True
+            ymask[r, c] = True
+        else:
+            # Mask values which fall outside the bounds of the input data set.
+            #lo_ind = np.where(gridy[xind] <= min_y_interp[ind])
+            #hi_ind = np.where(gridy[xind] >= max_y_interp[ind])
+
+            lo_ind = np.where(gridy[r, c] <= min_y_interp[ind])
+            hi_ind = np.where(gridy[r, c] >= max_y_interp[ind])
+            
+            # Fails because the value is not stored into the array. Suspect this
+            # has something to do with advanced indexing and the difference
+            # between a copy and a view. 
+            #ymask[xind][lo_ind] = True
+            #ymask[xind][hi_ind] = True
+
+            #print min_y_interp[ind], gridy[r, c][lo_ind]
+
+    gridz = np.ma.masked_where(ymask, gridz)
+    #gridz = np.ma.masked_array(gridz, mask = ymask)
+
+##    # Mask Vr gridz values where they are less than the input data. This is to
+##    # mitigate an interpolation artifact where tight gradients are shown between
+##    # y = 0 and the lowest height for which there is data present. 
+##    thresh = 0.5 * np.nanmin(z)
+##    gridz = np.ma.masked_where(gridz < thresh, gridz)
 
     dictPlotThis['gridx'] = gridx
     dictPlotThis['gridy'] = gridy
@@ -437,7 +525,7 @@ def process_data(data, dictPlotParms, lumberjack):
         diff = xstep[i + 1] - xstep[i]
         xstep_interp.append(xstep[i])
         xstep1 = xstep[i] + (1/3.0)*diff
-        xstep2 = xstep[i] + (2/3.0)* diff
+        xstep2 = xstep[i] + (2/3.0)*diff
         xstep_interp.append(xstep1)
         xstep_interp.append(xstep2)
         # Rely on good 'ol y = mx + b.
