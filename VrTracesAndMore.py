@@ -1418,7 +1418,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
                 pass
             else:
                 # Varying radius, varying color
-                plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
+                #plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
+                plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o')
 
         # Since neither imshow nor contourf was used, plt.colorbar() won't work. To get a colorbar,
         # one must first create a dummy scalar mappable from which to create the colorbar.
@@ -1426,7 +1427,25 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         sm.set_array([vmin, vmax])
         cbar = plt.colorbar(sm, ticks = cbarticks)
 
-        # FutureDev: add a legend for marker size.
+        # Adding a legend for the marker size is tricky because of how easy matplotlib makes it
+        # to add legends most of the time. This is not "most of the time". Get around this by 
+        # plotting the 5 markers somewhere off-screen, labeling them with the bin labels, and
+        # then adding a legend as usual.
+        # From the numpy documentation for np.digitize:
+        # bins[i-1] <= x < bins[i] if 'bins' is monotonically increasing and 'right' is False.
+        lbls = ['%s <= diam < %s' % (bins[i-1], bins[i]) for i, v in enumerate(bins)]
+        # The first entry is invalid. bins[i-1] when i = 0 yields the last value in bins.
+        lbls = lbls[1:]
+        # The last entry requires special formatting.
+        lbls.append('%s <= diam' % bins[-1])
+        leg_x = range(0, len(bins))
+        leg_y = [2*vr_ylim for i in leg_x]
+        leg_inds = np.digitize(bins, bins)
+        leg_area = np.pi * (leg_inds * 2)**2
+        for i in leg_x:
+            plt.scatter(leg_x[i], leg_y[i], s = leg_area[i], marker = 'o', label = lbls[i])
+        plt.legend(title = 'Core diameter')
+        
         
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
