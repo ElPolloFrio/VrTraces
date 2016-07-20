@@ -411,18 +411,6 @@ def process_data(data, dictPlotParms, lumberjack):
     #minmask[toolo_ind] = True
     #minmask[toohi_ind] = True
 
-    def ymxb(xpt1, ypt1, xpt2, ypt2):
-        # A helper function. Given points x1,y1 and x2,y2 assumed to be along the
-        # same line, this function returns m and b from y = mx + b.
-        #
-        # m = (y2 - y1)/(x2 - x1)
-        # b = y1 - mx1
-
-        m = (ypt2 - ypt1)/(xpt2 - xpt1)
-        b = ypt1 - m*xpt1
-
-        return m, b
-
     # Surely there are more elegant ways to do this. Hey future me, did you find any?
     #
     # min_y and max_y are 1D vectors containing the min/max values
