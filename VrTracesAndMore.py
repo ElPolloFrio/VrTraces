@@ -687,6 +687,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
     tz_units = dictUserParms['tz_units']
     corediam_units = dictUserParms['corediam_units']
     height_units = dictUserParms['height_units']
+    vr_units = dictUserParms['vr_units']
     
     dictPlotLabels = {
         'corediam': {
@@ -1198,7 +1199,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         else:
             cbar = plt.colorbar(ax = ax)
 
-        cbar.set_label(r'$V_r$')
+        cbarlbl = r'$V_r$ (' + vr_units + ')'
+        cbar.set_label(cbarlbl)
 
         # Scatterplot of the data points only, not the interpolation points.
         for a in np.arange(0, len(x)):
@@ -1269,7 +1271,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         else:
             cbar = fig.colorbar(CSF)
 
-        cbar.set_label(r'$V_r$')
+        cbarlbl = r'$V_r$ (' + vr_units + ')'
+        cbar.set_label(cbarlbl)
 
         # Scatterplot of the data points only, not the interpolation points.
         for a in np.arange(0, len(x)):
@@ -1354,7 +1357,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         sm = plt.cm.ScalarMappable(cmap = colmap)
         sm.set_array([vmin, vmax])
         cbar = plt.colorbar(sm, ticks = cbarticks)
-        cbar.set_label(r'$V_r$')
+        cbarlbl = r'$V_r$ (' + vr_units + ')'
+        cbar.set_label(cbarlbl)
             
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
@@ -1440,7 +1444,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         sm = plt.cm.ScalarMappable(cmap = colmap)
         sm.set_array([vmin, vmax])
         cbar = plt.colorbar(sm, ticks = cbarticks)
-        cbar.set_label(r'$V_r$')
+        cbarlbl = r'$V_r$ (' + vr_units + ')'
+        cbar.set_label(cbarlbl)
 
         # Adding a legend for the marker size is tricky because of how easy matplotlib makes it
         # to add legends most of the time. This is not "most of the time". Get around this by 
@@ -1467,7 +1472,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # http://stackoverflow.com/questions/10101700/moving-matplotlib-legend-outside-of-the-axis-makes-it-cutoff-by-the-figure-box
         # See also: http://matplotlib.org/users/legend_guide.html#plotting-guide-legend
         handles, labels = ax.get_legend_handles_labels()
-        leg = ax.legend(handles, labels, loc = 'best', bbox_to_anchor = (1.55, 1), title = 'Core diameter', fontsize = 'small', scatterpoints = 1, frameon = False)
+        leg = ax.legend(handles, labels, loc = 'best', bbox_to_anchor = (1.55, 1), title = 'Core diameter (%s)' % (corediam_units), fontsize = 'small', scatterpoints = 1, frameon = False)
 
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
