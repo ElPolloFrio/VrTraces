@@ -1431,13 +1431,13 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # Adding a legend for the marker size is tricky because of how easy matplotlib makes it
         # to add legends most of the time. This is not "most of the time". Get around this by 
         # plotting the 5 markers somewhere off-screen, labeling them with the bin labels, and
-        # then adding a legend as usual.
+        # then adding a legend as usual. Well, almost as usual. See below.
         # From the numpy documentation for np.digitize:
         # bins[i-1] <= x < bins[i] if 'bins' is monotonically increasing and 'right' is False.
         lbls = [r'%s $\leq$ $\varnothing <$ %s' % (bins[i-1], bins[i]) for i, v in enumerate(bins)]
         # The first entry is invalid. bins[i-1] when i = 0 yields the last value in bins.
         lbls = lbls[1:]
-        # The last entry requires special formatting.
+        # The last legend entry requires special formatting.
         lbls.append(r'%s $\leq$ $\varnothing$' % bins[-1])
         leg_x = range(0, len(bins))
         leg_y = [2*vr_ylim for i in leg_x]
@@ -1446,7 +1446,14 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         for i in leg_x:
             # FutureDev: Technically, 'color' should be the color of the plot background, which is not necessarily 'white'.
             plt.scatter(leg_x[i], leg_y[i], s = leg_area[i], edgecolor = 'k', color = 'white', marker = 'o', label = lbls[i])
-        plt.legend(loc = 'best', title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
+        #plt.legend(loc = 'best', title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
+
+        # The 'savefig' command normally cuts off the legend if the legend is outside of the plot area.
+        # h/t to StackOverflow for a workaround:
+        # http://stackoverflow.com/questions/10101700/moving-matplotlib-legend-outside-of-the-axis-makes-it-cutoff-by-the-figure-box
+        # See also: http://matplotlib.org/users/legend_guide.html#plotting-guide-legend
+        handles, labels = ax.get_legend_handles_labels()
+        leg = ax.legend(handles, labels, loc = 'best', bbox_to_anchor = (1.55, 1), title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
 
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
@@ -1454,11 +1461,13 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.xlabel(vr_labels['xlabel'])
         plt.ylabel(vr_labels['ylabel'])
         plt.xticks(t, timestr, rotation = '60')
-        plt.tight_layout()
-
+        #plt.tight_layout()
+        
         fname = '{}_{}_VrCorediam.png'.format(base_fname, 'VrPoints')
         fig.set_size_inches(figsize)
-        plt.savefig(fname)
+        #plt.savefig(fname)
+        # The workaround involves telling 'savefig' to account for other artists, in this case the legend.
+        fig.savefig(fname, bbox_extra_artists = (leg,), bbox_inches = 'tight')
 
         return None
     
