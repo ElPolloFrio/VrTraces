@@ -1426,6 +1426,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         sm = plt.cm.ScalarMappable(cmap = colmap)
         sm.set_array([vmin, vmax])
         cbar = plt.colorbar(sm, ticks = cbarticks)
+        cbar.set_label(r'$V_r$')
 
         # Adding a legend for the marker size is tricky because of how easy matplotlib makes it
         # to add legends most of the time. This is not "most of the time". Get around this by 
