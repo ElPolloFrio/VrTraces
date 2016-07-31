@@ -1,8 +1,9 @@
 filename = sample02.csv
 mv_name = MV 2 (sample)
 tz_units = local
-corediam_units = meters
+corediam_units = furlongs
 height_units = kft
+vr_units = kts
 corediam_colmap = Paired
 shear_colmap = Accent
 filled_contour_colmap = CMRmap_r

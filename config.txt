@@ -3,6 +3,7 @@ mv_name = MV 1 (sample)
 tz_units = UTC
 corediam_units = km
 height_units = km
+vr_units = ms$^{-1}$
 corediam_colmap = hsv
 shear_colmap = Spectral
 filled_contour_colmap = hot_r

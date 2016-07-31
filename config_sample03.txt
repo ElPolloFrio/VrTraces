@@ -3,6 +3,7 @@ mv_name = MV 3 (sample)
 tz_units = UTC
 corediam_units = km
 height_units = km
+vr_units = ms$^{-1}$
 corediam_colmap = jet
 shear_colmap = jet
 filled_contour_colmap = bone_r
