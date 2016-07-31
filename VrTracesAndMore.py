@@ -1434,11 +1434,11 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # then adding a legend as usual.
         # From the numpy documentation for np.digitize:
         # bins[i-1] <= x < bins[i] if 'bins' is monotonically increasing and 'right' is False.
-        lbls = ['%s <= diam < %s' % (bins[i-1], bins[i]) for i, v in enumerate(bins)]
+        lbls = [r'%s $\leq$ $\varnothing <$ %s' % (bins[i-1], bins[i]) for i, v in enumerate(bins)]
         # The first entry is invalid. bins[i-1] when i = 0 yields the last value in bins.
         lbls = lbls[1:]
         # The last entry requires special formatting.
-        lbls.append('%s <= diam' % bins[-1])
+        lbls.append(r'%s $\leq$ $\varnothing$' % bins[-1])
         leg_x = range(0, len(bins))
         leg_y = [2*vr_ylim for i in leg_x]
         leg_inds = np.digitize(bins, bins)
