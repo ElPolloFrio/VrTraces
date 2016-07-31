@@ -1187,7 +1187,9 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             cbar = fig.colorbar(CSF, ticks = ConInt)
             cbar.ax.set_yticklabels(ContourTickLabels)
         else:
-            plt.colorbar(ax = ax)
+            cbar = plt.colorbar(ax = ax)
+
+        cbar.set_label(r'$V_r$')
 
         # Scatterplot of the data points only, not the interpolation points.
         for a in np.arange(0, len(x)):
@@ -1257,6 +1259,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
             cbar.ax.set_yticklabels(ContourTickLabels)
         else:
             cbar = fig.colorbar(CSF)
+
+        cbar.set_label(r'$V_r$')
 
         # Scatterplot of the data points only, not the interpolation points.
         for a in np.arange(0, len(x)):
