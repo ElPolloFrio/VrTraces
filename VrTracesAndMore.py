@@ -1462,9 +1462,12 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.ylabel(vr_labels['ylabel'])
         plt.xticks(t, timestr, rotation = '60')
         #plt.tight_layout()
+
+        # Make more space available to the plot area.
+        figsize_wider = (figsize[0] * 1.1, figsize[1])
         
         fname = '{}_{}_VrCorediam.png'.format(base_fname, 'VrPoints')
-        fig.set_size_inches(figsize)
+        fig.set_size_inches(figsize_wider)
         #plt.savefig(fname)
         # The workaround involves telling 'savefig' to account for other artists, in this case the legend.
         fig.savefig(fname, bbox_extra_artists = (leg,), bbox_inches = 'tight')
