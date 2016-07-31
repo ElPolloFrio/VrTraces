@@ -1453,7 +1453,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         # http://stackoverflow.com/questions/10101700/moving-matplotlib-legend-outside-of-the-axis-makes-it-cutoff-by-the-figure-box
         # See also: http://matplotlib.org/users/legend_guide.html#plotting-guide-legend
         handles, labels = ax.get_legend_handles_labels()
-        leg = ax.legend(handles, labels, loc = 'best', bbox_to_anchor = (1.55, 1), title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
+        leg = ax.legend(handles, labels, loc = 'best', bbox_to_anchor = (1.55, 1), title = 'Core diameter', fontsize = 'small', scatterpoints = 1, frameon = False)
 
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
