@@ -1341,6 +1341,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         sm = plt.cm.ScalarMappable(cmap = colmap)
         sm.set_array([vmin, vmax])
         cbar = plt.colorbar(sm, ticks = cbarticks)
+        cbar.set_label(r'$V_r$')
             
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
