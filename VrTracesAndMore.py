@@ -79,6 +79,10 @@ def set_vars(configfile):
     #
     # height_units: (string) Height units to use on the y-axis for the Vr plots.
     #
+    # vr_units: (string, possibly with LaTeX markup) Vr units to use on the
+    #   colorbar or elsewhere. Common entries are "kts", "m/s", or the
+    #   publication-quality ms$^{-1}$.
+    #
     # corediam_colmap: (string, must be a valid matplotlib colormap name)
     #   A matplotlib colormap from which to select colors to use for the core
     #   diameter plot. Good options include 'hsv', 'gist_rainbow', 'Spectral',
