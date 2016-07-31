@@ -160,6 +160,11 @@ def set_vars(configfile):
                 val = float(val)
             if key in ['modulo_for_timeticks', 'tri_subdivisions']:
                 val = int(val)
+            if 'units' in key:
+                # Look for possible LaTeX markup. It's up to the user to QC their LaTeX.
+                if '$' in val:
+                    # Treat this as a raw literal since it has TeX markup.
+                    val = r'%s' % (val)
             if key in ['VrPointsBins', 'VrPointsCols', 'ContourIntervals', 'ContourCols']:
                 # Turn a comma-separated text list into a Python list
                 val = val.split(',')
