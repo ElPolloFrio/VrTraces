@@ -835,7 +835,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.yaxis.grid(True)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
-        ax.legend(loc = 2, scatterpoints = 1, prop = LFP)    
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)    
         plt.title(corediam_labels['title'])
         plt.xlabel(corediam_labels['xlabel'])
         plt.ylabel(corediam_labels['ylabel'])
@@ -876,7 +876,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.yaxis.grid(True)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
         plt.title(shear_labels['title'])
         plt.xlabel(shear_labels['xlabel'])
         plt.ylabel(shear_labels['ylabel'])
@@ -911,7 +911,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_xlim(-0.5, len(t)+3)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
 
         # Plot the numbers
         for looper in np.arange(0,len(x)):
@@ -948,7 +948,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_xlim(-0.5, len(t)+3)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize + 2)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
 
         # Plot the numbers
         for looper in np.arange(0,len(x)):
@@ -996,7 +996,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_xlim(-0.5, len(t)+3)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
         # Code to plot the numbers as a troubleshooting aid. Turns out that Ron likes
         # this, so include it in the final image. 
         for looper in np.arange(0,len(x)):
@@ -1067,7 +1067,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_ylim(0, vr_ylim)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
@@ -1142,7 +1142,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         ax.set_xlim(-0.5, len(t)+3)
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
         # Code to plot the numbers as a troubleshooting aid. Turns out that Ron likes
         # this, so include it in the final image. 
         for looper in np.arange(0,len(x)):
@@ -1206,7 +1206,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.xticks(t, timestr, rotation = '60')
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
@@ -1277,7 +1277,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         plt.xticks(t, timestr, rotation = '60')
         # LFP stands for "legend font properties"
         LFP = matplotlib.font_manager.FontProperties(size = base_fontsize - 2)
-        ax.legend(loc = 0, scatterpoints = 1, prop = LFP)
+        ax.legend(loc = 'best', scatterpoints = 1, prop = LFP)
         plt.rcParams['font.size'] = fontsize
         plt.tight_layout()
 
@@ -1444,7 +1444,7 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
         leg_area = np.pi * (leg_inds * 2)**2
         for i in leg_x:
             plt.scatter(leg_x[i], leg_y[i], s = leg_area[i], edgecolor = 'k', color = 'white', marker = 'o', label = lbls[i])
-        plt.legend(loc = 'upper right', title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
+        plt.legend(loc = 'best', title = 'Core diameter', fontsize = 'small', scatterpoints = 1)
 
         plt.ylim(0, vr_ylim)
         ax.set_xlim(-0.5, len(t)+3)
