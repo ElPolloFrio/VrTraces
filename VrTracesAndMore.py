@@ -1418,8 +1418,8 @@ def make_plots(dictUserParms, dictPlotThis, lumberjack):
                 pass
             else:
                 # Varying radius, varying color
-                #plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o', label = '%.1f deg' % elev[a])
-                plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o')
+                # Label the lines for future purposes, but exclude them from the legend
+                plt.scatter(t2D[a,:], y[a,:], s = area[a,:], c = colorVal, marker = 'o', label = '_%.1f deg' % elev[a])
 
         # Since neither imshow nor contourf was used, plt.colorbar() won't work. To get a colorbar,
         # one must first create a dummy scalar mappable from which to create the colorbar.
